@@ -99,11 +99,11 @@ export const StoriesPage = () => {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   className="flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-lg shadow-black/30"
                 >
-                  <div className="relative h-36 w-full overflow-hidden">
+                  <div className="relative h-52 w-full overflow-hidden bg-black">
                     <img
                       src={testimony.image}
                       alt={testimony.name}
-                      className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                      className="h-full w-full object-cover object-top transition duration-500 hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                   </div>
