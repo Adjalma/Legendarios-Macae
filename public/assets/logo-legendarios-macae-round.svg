@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420">
+  <defs>
+    <linearGradient id="roundGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff7423" />
+      <stop offset="100%" stop-color="#ff4f00" />
+    </linearGradient>
+  </defs>
+  <rect width="420" height="420" rx="210" fill="#0d0d0f" />
+  <circle cx="210" cy="210" r="160" fill="url(#roundGradient)" />
+  <path
+    d="M138 246c16-46 33-76 55-87 19-10 43-6 68 12-12 25-24 48-37 70 8 13 16 26 25 40-21 6-43 9-66 9-16-20-29-34-45-44z"
+    fill="#0d0d10"
+    opacity="0.82"
+  />
+  <path
+    d="M228 144c18-15 47-23 87-23-6 29-15 54-29 76-16-22-35-39-58-53z"
+    fill="#0d0d10"
+    opacity="0.66"
+  />
+  <text
+    x="210"
+    y="320"
+    text-anchor="middle"
+    font-family="'Montserrat', sans-serif"
+    font-size="52"
+    font-weight="700"
+    fill="#0d0d0f"
+    letter-spacing="8"
+  >
+    LM
+  </text>
+  <circle cx="210" cy="210" r="158" stroke="#f6f1e6" stroke-width="6" fill="none" opacity="0.25" />
+</svg>
+

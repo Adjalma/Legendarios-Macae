@@ -169,6 +169,16 @@ export const TopsPage = () => {
                   >
                     {top.status === "open" ? "Inscreva-se agora" : "Ver detalhes"}
                   </a>
+                  {top.detailsUrl && top.detailsUrl !== top.registrationUrl && (
+                    <a
+                      href={top.detailsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block rounded-full border border-white/15 px-4 py-3 text-center text-sm font-semibold uppercase tracking-wide text-white/80 transition hover:border-legendarios-orange hover:text-legendarios-orange"
+                    >
+                      Detalhes do TOP
+                    </a>
+                  )}
                   <div className="flex flex-wrap gap-3 text-xs uppercase tracking-wide text-white/60">
                     {top.packingListUrl && (
                       <a

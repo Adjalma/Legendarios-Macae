@@ -19,6 +19,7 @@ export type RioTopEvent = {
   startDate: string;
   endDate: string;
   registrationUrl: string;
+  detailsUrl?: string;
   preparationUrl?: string;
   packingListUrl?: string;
   location: string;

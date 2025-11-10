@@ -27,6 +27,7 @@ Projeto em React + Vite para o movimento Legendários Macaé, com integrações 
 - `src/services` — integrações com legendarios.org.br e legendariosrio.com.br
 - `src/hooks` — hooks com React Query
 - `src/components` — componentes reutilizáveis (navegação, UI)
+- `src/content/timeline.ts` — marco histórico para a linha do tempo interativa
 
 ## Integrações
 
@@ -38,6 +39,7 @@ Ambos os serviços usam `React Query` para cache e revalidação periódica.
 ## Próximos passos
 
 - Desbloquear instalação dos pacotes (`npm install`).
-- Ajustar parsing dos contadores conforme estrutura final do conteúdo WordPress.
+- Validar coleta dos números globais quando houver mudanças no HTML oficial.
 - Incorporar mídia e testemunhos reais fornecidos pelos líderes regionais.
+- Substituir imagens remotas pelos arquivos oficiais (logos, fotos de TOPs) quando disponíveis.
 

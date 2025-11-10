@@ -30,7 +30,7 @@ export const MobileMenu = ({ links, isOpen, onClose }: MobileMenuProps) => {
           </NavLink>
         ))}
         <a
-          href="https://legendarios.org.br/"
+          href="https://loslegendarios.org/"
           target="_blank"
           rel="noreferrer"
           className="mt-3 rounded-md border border-legendarios-orange px-3 py-2 text-center text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"

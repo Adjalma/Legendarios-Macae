@@ -19,15 +19,17 @@ export const Navbar = () => {
   return (
     <header className="bg-legendarios-dark/90 backdrop-blur supports-[backdrop-filter]:bg-legendarios-dark/70 sticky top-0 z-50 border-b border-white/5">
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4 md:px-6">
-        <NavLink to="/" className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full border-2 border-legendarios-orange bg-legendarios-dark flex items-center justify-center text-lg font-bold text-legendarios-orange">
-            LG
-          </div>
+        <NavLink to="/" className="flex items-center gap-4">
+          <img
+            src="/assets/logo-legendarios-macae-flag.svg"
+            alt="Legendários Macaé"
+            className="h-14 w-14 rounded-full border border-white/10 bg-black/60 p-1"
+          />
           <div className="flex flex-col leading-tight">
-            <span className="font-display text-lg tracking-wide uppercase">
+            <span className="font-display text-lg tracking-[0.4em] uppercase text-legendarios-orange">
               Legendários
             </span>
-            <span className="text-sm text-white/70 uppercase">Macaé</span>
+            <span className="text-sm text-white/80 uppercase tracking-[0.3em]">Macaé</span>
           </div>
         </NavLink>
 
@@ -46,7 +48,7 @@ export const Navbar = () => {
             </NavLink>
           ))}
           <a
-            href="https://legendarios.org.br/"
+            href="https://loslegendarios.org/"
             target="_blank"
             rel="noreferrer"
             className="rounded-full border border-legendarios-orange px-4 py-2 text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"

@@ -11,6 +11,16 @@ type WordPressPost = {
   content: { rendered: string };
 };
 
+const eventOverrides: Record<string, Partial<RioTopEvent>> = {
+  "top-1282": {
+    registrationUrl:
+      "https://ticketandgo.com.br/legendarios-top-1282-track-redencao?id=a40a28f3-58d1-45b6-ad24-553946042a32",
+    packingListUrl: "/docs/o-que-levar-legendarios-rio-2025-05-b.pdf",
+    preparationUrl: "/docs/Atestado-Participantes-20251030.pdf",
+    detailsUrl: "https://legendariosrio.com.br/top-1282"
+  }
+};
+
 const parseDateRange = (text: string): { startDate?: string; endDate?: string } => {
   const dateRegex =
     /(\d{1,2})\s*(?:a|-|até)?\s*(\d{1,2})?\s*de\s*(janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s*(de\s*(\d{4}))?/i;
@@ -72,11 +82,12 @@ const parseTopEvent = (post: WordPressPost): RioTopEvent => {
 
   const coverImageMatch = cleanContent.match(/<img[^>]*src="([^"]+)"[^>]*>/i);
 
-  return {
+  const event: RioTopEvent = {
     id: String(post.id),
     title: post.title.rendered.replace(/<[^>]+>/g, ""),
     location: "Estado do Rio de Janeiro",
     registrationUrl: links.registration,
+    detailsUrl: post.link,
     packingListUrl: links.packingList,
     preparationUrl: links.preparation,
     startDate: dateInfo.startDate || new Date().toISOString(),
@@ -84,6 +95,9 @@ const parseTopEvent = (post: WordPressPost): RioTopEvent => {
     status,
     coverImage: coverImageMatch?.[1]
   };
+
+  const override = eventOverrides[post.slug];
+  return override ? { ...event, ...override } : event;
 };
 
 export const fetchRioTopEvents = async (): Promise<RioTopEvent[]> => {
