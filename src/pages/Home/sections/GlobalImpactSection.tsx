@@ -1,86 +1,124 @@
 import { useLegendariosGlobal } from "../../../hooks/useLegendariosGlobal";
+import { useAnimatedCounter } from "../../../hooks/useAnimatedCounter";
 import { formatNumber } from "../../../utils/number";
 
 export const GlobalImpactSection = () => {
   const { data, isLoading, isError } = useLegendariosGlobal();
 
+  const animatedSedes = useAnimatedCounter(data?.totalSedes);
+  const animatedLegendarios = useAnimatedCounter(data?.totalLegendarios);
+  const animatedTops = useAnimatedCounter(data?.totalTops);
+
   return (
-    <section className="bg-gradient-to-b from-legendarios-dark/90 via-legendarios-charcoal/80 to-legendarios-dark py-24">
-      <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+    <section className="relative overflow-hidden bg-black text-white py-28">
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage:
+            "linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.92) 100%), url('https://loslegendarios.org/storage/missions/139313328_1750412025101168eba605886ba.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        }}
+      />
+      <div className="relative mx-auto max-w-6xl px-4 md:px-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="text-xs uppercase tracking-[0.4em] text-legendarios-orange">
-              Impacto Global
+              Legendários Pelo Mundo
             </span>
-            <h2 className="mt-3 font-display text-3xl uppercase text-white md:text-4xl">
-              Legendários pelo mundo
+            <h2 className="mt-3 font-display text-3xl uppercase md:text-4xl">
+              Impacto global em tempo real
             </h2>
-            <p className="mt-3 max-w-xl text-sm text-white/60">
-              Sincronização direta com legendarios.org.br. Mantemos Macaé conectado aos números
-              oficiais do movimento internacional.
+            <p className="mt-3 max-w-2xl text-sm text-white/70">
+              Dados sincronizados diretamente de loslegendarios.org. Sempre que esta seção é
+              carregada, os contadores iniciam do zero e alcançam a marca atual global do movimento.
             </p>
           </div>
           {data?.lastUpdated && (
-            <p className="text-sm text-white/50">
+            <p className="text-xs uppercase tracking-[0.3em] text-white/50">
               Atualizado em {new Date(data.lastUpdated).toLocaleString("pt-BR")}
             </p>
           )}
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-4">
+        <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {[
-            { label: "Legendários", value: data?.totalLegendarios, highlight: true },
-            { label: "Países", value: data?.totalCountries },
-            { label: "Cidades do mundo", value: data?.totalCities },
-            { label: "Estados nos EUA", value: data?.totalUnitedStatesStates }
-          ].map((item, index) => (
+            { label: "Sedes", value: animatedSedes, target: data?.totalSedes ?? 0 },
+            { label: "Legendários", value: animatedLegendarios, target: data?.totalLegendarios ?? 0 },
+            { label: "TOPs", value: animatedTops, target: data?.totalTops ?? 0 }
+          ].map((counter) => {
+            const digitsLength = Math.max(2, counter.target.toString().length);
+            const displayValue = isLoading
+              ? "0".repeat(digitsLength)
+              : counter.value.toString().padStart(digitsLength, "0");
+
+            return (
             <div
-              key={item.label}
-              className="group rounded-3xl border border-white/10 bg-white/90 p-6 text-center shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:shadow-legendarios-orange/20"
+              key={counter.label}
+              className="flex flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/10 p-6 text-center shadow-lg shadow-black/30 backdrop-blur"
             >
-              <p className="text-xs uppercase tracking-[0.4em] text-black/60">{item.label}</p>
-              <p
-                className={`mt-3 font-display text-4xl ${
-                  index === 0 ? "text-legendarios-orange" : "text-black"
-                }`}
-              >
-                {isLoading ? "..." : item.value !== undefined ? formatNumber(item.value) : "--"}
-              </p>
+              <span className="text-xs uppercase tracking-[0.4em] text-white/60">
+                {counter.label}
+              </span>
+              <div className="mt-4 flex gap-1 text-4xl font-bold tracking-[0.25em] text-legendarios-orange md:text-5xl">
+                  {displayValue.split("").map((digit, index) => (
+                    <span
+                      key={`${counter.label}-${index}`}
+                      className="flex h-16 w-10 items-center justify-center rounded bg-black/50 text-white md:h-20 md:w-12"
+                    >
+                      {digit}
+                    </span>
+                  ))}
+              </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="mt-16 rounded-3xl border border-white/10 bg-black/65 p-8">
+        <div className="mt-16 rounded-3xl border border-white/10 bg-black/70 p-6 backdrop-blur">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <h3 className="text-sm uppercase tracking-[0.4em] text-white/60">
-              Legados por país
+              Bases legendárias ativas
             </h3>
             {isError && (
               <p className="text-xs text-red-300">
-                Não foi possível sincronizar com legendarios.org.br. Exibindo última base conhecida.
+                Não foi possível sincronizar com loslegendarios.org. Exibindo a última base
+                conhecida.
               </p>
             )}
           </div>
           {isLoading && (
             <p className="mt-6 text-sm text-white/60">
-              Carregando dados diretamente de legendarios.org.br...
+              Carregando informações diretamente de loslegendarios.org...
             </p>
           )}
-
           {!isLoading && data && (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 flex flex-wrap gap-3">
               {data.countries.map((country) => (
                 <div
                   key={country.country}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-legendarios-orange/60 hover:bg-white/10"
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 transition hover:border-legendarios-orange/60 hover:bg-white/20"
                 >
-                  <p className="text-sm uppercase tracking-wide text-white/60">{country.country}</p>
-                  <p className="mt-2 font-display text-2xl text-white">
-                    {formatNumber(country.totalLegendarios)}
-                  </p>
+                  {country.flagUrl && (
+                    <img
+                      src={country.flagUrl}
+                      alt={country.country}
+                      className="h-8 w-8 rounded-full border border-white/20 object-cover"
+                    />
+                  )}
+                  <span className="text-sm font-semibold uppercase tracking-wide">
+                    {country.country}
+                  </span>
                 </div>
               ))}
             </div>
+          )}
+          {!isLoading && data && (
+            <p className="mt-6 text-xs text-white/50">
+              Valores finais: {formatNumber(data.totalSedes)} sedes •{" "}
+              {formatNumber(data.totalLegendarios)} legendários • {formatNumber(data.totalTops)} TOPs
+              realizados.
+            </p>
           )}
         </div>
       </div>

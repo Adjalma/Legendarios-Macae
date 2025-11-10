@@ -4,6 +4,7 @@ import { TopsPage } from "../pages/Tops/TopsPage";
 import { StoriesPage } from "../pages/Stories/StoriesPage";
 import { MediaPage } from "../pages/Media/MediaPage";
 import { AboutPage } from "../pages/About/AboutPage";
+import { ContactPage } from "../pages/Contact/ContactPage";
 
 export const AppRoutes = () => {
   return useRoutes([
@@ -11,7 +12,8 @@ export const AppRoutes = () => {
     { path: "/tops", element: <TopsPage /> },
     { path: "/historias", element: <StoriesPage /> },
     { path: "/midia", element: <MediaPage /> },
-    { path: "/sobre", element: <AboutPage /> }
+    { path: "/sobre", element: <AboutPage /> },
+    { path: "/contato", element: <ContactPage /> }
   ]);
 };
 

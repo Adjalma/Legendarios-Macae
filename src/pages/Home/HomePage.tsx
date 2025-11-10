@@ -1,6 +1,5 @@
 import { GlobalImpactSection } from "./sections/GlobalImpactSection";
 import { HeroSection } from "./sections/HeroSection";
-import { HighlightsSection } from "./sections/HighlightsSection";
 import { RioCallToActionSection } from "./sections/RioCallToActionSection";
 import { TimelineSection } from "./sections/TimelineSection";
 import { SocialWallSection } from "./sections/SocialWallSection";
@@ -12,7 +11,6 @@ export const HomePage = () => {
       <GlobalImpactSection />
       <TimelineSection />
       <SocialWallSection />
-      <HighlightsSection />
       <RioCallToActionSection />
     </div>
   );

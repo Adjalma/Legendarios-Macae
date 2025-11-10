@@ -1,15 +1,14 @@
 export type GlobalCountryStat = {
   country: string;
-  totalLegendarios: number;
   flagUrl?: string;
+  totalLegendarios?: number;
 };
 
 export type GlobalImpactResponse = {
   totalLegendarios: number;
+  totalSedes: number;
+  totalTops: number;
   countries: GlobalCountryStat[];
-  totalCountries: number;
-  totalCities: number;
-  totalUnitedStatesStates: number;
   lastUpdated?: string;
 };
 

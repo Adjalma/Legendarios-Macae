@@ -8,7 +8,8 @@ const links: NavigationLink[] = [
   { label: "TOPs RJ", path: "/tops" },
   { label: "Histórias", path: "/historias" },
   { label: "Mídia", path: "/midia" },
-  { label: "Sobre", path: "/sobre" }
+  { label: "Sobre", path: "/sobre" },
+  { label: "Contato", path: "/contato" }
 ];
 
 export const Navbar = () => {
