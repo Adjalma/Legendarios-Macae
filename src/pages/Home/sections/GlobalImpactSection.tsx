@@ -11,44 +11,28 @@ export const GlobalImpactSection = () => {
   return (
     <section className="relative overflow-hidden bg-black text-white py-36">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <video
-          className="absolute inset-0 h-full w-full object-cover opacity-80"
+        <div className="planet-wrapper">
+          <video
+            className="h-full w-full object-cover"
           src="https://cdn.coverr.co/videos/coverr-small-blue-planet-1822/1080p.mp4"
           autoPlay
           muted
           loop
           playsInline
           poster="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1600&q=80"
-        />
-        <video
-          className="absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-35"
-          src="https://cdn.coverr.co/videos/coverr-space-dust-velocity-6737/1080p.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
+          />
+        </div>
+        <div className="stars-layer" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/65 to-black/95" />
       </div>
       <div className="relative mx-auto max-w-6xl px-4 md:px-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <span className="text-xs uppercase tracking-[0.4em] text-legendarios-orange">
-              Legendários Pelo Mundo
-            </span>
-            <h2 className="mt-3 font-display text-3xl uppercase md:text-4xl">
-              Impacto global em tempo real
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm text-white/70">
-              Dados sincronizados diretamente de loslegendarios.org. Sempre que esta seção é
-              carregada, os contadores iniciam do zero e alcançam a marca atual global do movimento.
-            </p>
-          </div>
-          {data?.lastUpdated && (
-            <p className="text-xs uppercase tracking-[0.3em] text-white/50">
-              Atualizado em {new Date(data.lastUpdated).toLocaleString("pt-BR")}
-            </p>
-          )}
+        <div className="text-center md:text-left">
+          <span className="text-xs uppercase tracking-[0.4em] text-legendarios-orange">
+            Legendários Pelo Mundo
+          </span>
+          <h2 className="mt-3 font-display text-3xl uppercase md:text-4xl">
+            Impacto global em tempo real
+          </h2>
         </div>
 
         <div className="mt-12 flex flex-wrap justify-center gap-8">
