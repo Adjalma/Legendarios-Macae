@@ -1,16 +1,18 @@
 import { useLegendariosGlobal } from "../../../hooks/useLegendariosGlobal";
 import { useAnimatedCounter } from "../../../hooks/useAnimatedCounter";
+import { useInViewTrigger } from "../../../hooks/useInViewTrigger";
 import { formatNumber } from "../../../utils/number";
 
 export const GlobalImpactSection = () => {
   const { data, isLoading, isError } = useLegendariosGlobal();
+  const { ref: sectionRef, trigger } = useInViewTrigger<HTMLDivElement>({ threshold: 0.4 });
 
-  const animatedSedes = useAnimatedCounter(data?.totalSedes);
-  const animatedLegendarios = useAnimatedCounter(data?.totalLegendarios);
-  const animatedTops = useAnimatedCounter(data?.totalTops);
+  const animatedSedes = useAnimatedCounter(data?.totalSedes, 2000, trigger);
+  const animatedLegendarios = useAnimatedCounter(data?.totalLegendarios, 2000, trigger);
+  const animatedTops = useAnimatedCounter(data?.totalTops, 2000, trigger);
 
   return (
-    <section className="relative overflow-hidden bg-black text-white py-28">
+    <section ref={sectionRef} className="relative overflow-hidden bg-black text-white py-28">
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -53,29 +55,31 @@ export const GlobalImpactSection = () => {
               : counter.value.toString().padStart(digitsLength, "0");
 
             return (
-            <div
-              key={counter.label}
-              className="flex flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/10 p-6 text-center shadow-lg shadow-black/30 backdrop-blur"
-            >
-              <span className="text-xs uppercase tracking-[0.4em] text-white/60">
-                {counter.label}
-              </span>
-              <div className="mt-4 flex gap-1 text-4xl font-bold tracking-[0.25em] text-legendarios-orange md:text-5xl">
+              <div
+                key={counter.label}
+                className="flex flex-col items-center justify-between rounded-[34px] bg-gradient-to-br from-white/[0.12] via-white/[0.08] to-transparent p-8 text-center shadow-2xl shadow-black/60 backdrop-blur"
+              >
+                <div className="flex gap-1 rounded-[24px] bg-black/70 px-3 py-4 text-4xl font-bold tracking-[0.3em] text-white md:text-5xl">
                   {displayValue.split("").map((digit, index) => (
                     <span
                       key={`${counter.label}-${index}`}
-                      className="flex h-16 w-10 items-center justify-center rounded bg-black/50 text-white md:h-20 md:w-12"
+                      className="flex h-16 w-12 items-center justify-center rounded bg-black text-white shadow-inner md:h-20 md:w-14"
                     >
                       {digit}
                     </span>
                   ))}
+                </div>
+                <div className="mt-5 w-full rounded-full bg-legendarios-orange py-2">
+                  <span className="block text-xs font-semibold uppercase tracking-[0.4em] text-black">
+                    {counter.label}
+                  </span>
+                </div>
               </div>
-            </div>
             );
           })}
         </div>
 
-        <div className="mt-16 rounded-3xl border border-white/10 bg-black/70 p-6 backdrop-blur">
+        <div className="mt-16 rounded-3xl border border-white/10 bg-black/70 p-8 backdrop-blur">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <h3 className="text-sm uppercase tracking-[0.4em] text-white/60">
               Bases legendárias ativas
@@ -93,20 +97,20 @@ export const GlobalImpactSection = () => {
             </p>
           )}
           {!isLoading && data && (
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-4">
               {data.countries.map((country) => (
                 <div
                   key={country.country}
-                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 transition hover:border-legendarios-orange/60 hover:bg-white/20"
+                  className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 transition hover:border-legendarios-orange/60 hover:bg-white/20"
                 >
                   {country.flagUrl && (
                     <img
                       src={country.flagUrl}
                       alt={country.country}
-                      className="h-8 w-8 rounded-full border border-white/20 object-cover"
+                      className="h-7 w-7 rounded-full border border-white/20 object-cover"
                     />
                   )}
-                  <span className="text-sm font-semibold uppercase tracking-wide">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-white">
                     {country.country}
                   </span>
                 </div>

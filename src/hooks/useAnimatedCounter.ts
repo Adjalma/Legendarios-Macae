@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 
-export const useAnimatedCounter = (targetValue?: number, duration = 1800) => {
+export const useAnimatedCounter = (
+  targetValue?: number,
+  duration = 1800,
+  trigger = 0
+) => {
   const [currentValue, setCurrentValue] = useState(0);
   const previousTarget = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    previousTarget.current = undefined;
+    setCurrentValue(0);
+  }, [trigger]);
 
   useEffect(() => {
     if (!targetValue || targetValue <= 0) {
@@ -16,6 +25,7 @@ export const useAnimatedCounter = (targetValue?: number, duration = 1800) => {
     }
 
     previousTarget.current = targetValue;
+
     let frameId: number;
     const startTime = performance.now();
 
@@ -29,10 +39,9 @@ export const useAnimatedCounter = (targetValue?: number, duration = 1800) => {
       }
     };
 
-    setCurrentValue(0);
     frameId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(frameId);
-  }, [targetValue, duration]);
+  }, [targetValue, duration, trigger]);
 
   return currentValue;
 };
