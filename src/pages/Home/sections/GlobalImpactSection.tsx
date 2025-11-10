@@ -9,17 +9,25 @@ export const GlobalImpactSection = () => {
   const animatedTops = useAnimatedCounter(data?.totalTops, 2000);
 
   return (
-    <section className="relative overflow-hidden bg-black text-white py-28">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 h-[140%] w-[140%] -translate-x-1/2 -translate-y-1/2 animate-spin-slow mix-blend-screen opacity-80">
-          <img
-            src="https://loslegendarios.org/storage/missions/139313328_1750412025101168eba605886ba.png"
-            alt="Planeta Legendários"
-            className="h-full w-full object-cover"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/75 to-black/95" />
-        <div className="absolute inset-0 animate-stars-pan bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-35" />
+    <section className="relative overflow-hidden bg-black text-white py-36">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/60 to-black/95" />
+        <video
+          className="absolute inset-0 h-full w-full object-cover opacity-65"
+          src="https://legendariosmacae-static.s3.amazonaws.com/video/earth-loop.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+        <video
+          className="absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-25"
+          src="https://legendariosmacae-static.s3.amazonaws.com/video/stars-loop.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
       </div>
       <div className="relative mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
