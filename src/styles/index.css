@@ -18,3 +18,32 @@ body {
     radial-gradient(circle at bottom right, rgba(246, 241, 230, 0.12), transparent 50%);
 }
 
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stars-pan {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-3%, -3%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 120s linear infinite;
+}
+
+.animate-stars-pan {
+  animation: stars-pan 45s ease-in-out infinite;
+}
+

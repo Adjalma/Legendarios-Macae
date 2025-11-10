@@ -13,15 +13,19 @@ export const GlobalImpactSection = () => {
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden bg-black text-white py-28">
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.92) 100%), url('https://loslegendarios.org/storage/missions/139313328_1750412025101168eba605886ba.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center"
-        }}
-      />
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.85)_0%,_rgba(0,0,0,0.95)_45%,_#000_100%)]" />
+        <div className="absolute inset-0">
+          <div className="absolute right-[-20%] top-[-30%] h-[140%] w-[140%] animate-spin-slow opacity-70">
+            <img
+              src="https://loslegendarios.org/storage/missions/139313328_1750412025101168eba605886ba.png"
+              alt="Planeta Legendários"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="absolute inset-0 animate-stars-pan bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-40" />
+        </div>
+      </div>
       <div className="relative mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>

@@ -7,11 +7,7 @@ export const useAnimatedCounter = (
 ) => {
   const [currentValue, setCurrentValue] = useState(0);
   const previousTarget = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    previousTarget.current = undefined;
-    setCurrentValue(0);
-  }, [trigger]);
+  const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!targetValue || targetValue <= 0) {
@@ -20,13 +16,16 @@ export const useAnimatedCounter = (
       return;
     }
 
-    if (previousTarget.current === targetValue) {
+    if (previousTarget.current === targetValue && trigger === 0) {
       return;
     }
 
     previousTarget.current = targetValue;
 
-    let frameId: number;
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current);
+    }
+
     const startTime = performance.now();
 
     const update = (time: number) => {
@@ -35,12 +34,16 @@ export const useAnimatedCounter = (
       setCurrentValue(Math.floor(easedProgress * targetValue));
 
       if (progress < 1) {
-        frameId = requestAnimationFrame(update);
+        frameRef.current = requestAnimationFrame(update);
       }
     };
 
-    frameId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(frameId);
+    frameRef.current = requestAnimationFrame(update);
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
   }, [targetValue, duration, trigger]);
 
   return currentValue;
