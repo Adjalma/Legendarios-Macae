@@ -53,11 +53,12 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 140%;
-  height: 140%;
+  width: 200%;
+  height: 200%;
   transform: translate3d(-50%, -50%, 0);
   animation: planet-rotate 140s linear infinite;
   opacity: 0.85;
+  overflow: hidden;
 }
 
 @keyframes planet-rotate {
@@ -73,6 +74,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: saturate(1.3);
 }
 
 .stars-layer {

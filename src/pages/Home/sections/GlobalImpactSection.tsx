@@ -13,7 +13,7 @@ export const GlobalImpactSection = () => {
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="planet-wrapper">
           <video
-            className="h-full w-full object-cover"
+            className="planet-video"
           src="https://cdn.coverr.co/videos/coverr-small-blue-planet-1822/1080p.mp4"
           autoPlay
           muted
