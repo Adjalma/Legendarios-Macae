@@ -1,18 +1,15 @@
 import { useLegendariosGlobal } from "../../../hooks/useLegendariosGlobal";
 import { useAnimatedCounter } from "../../../hooks/useAnimatedCounter";
-import { useInViewTrigger } from "../../../hooks/useInViewTrigger";
 import { formatNumber } from "../../../utils/number";
 
 export const GlobalImpactSection = () => {
   const { data, isLoading, isError } = useLegendariosGlobal();
-  const { ref: sectionRef, trigger } = useInViewTrigger<HTMLDivElement>({ threshold: 0.4 });
-
-  const animatedSedes = useAnimatedCounter(data?.totalSedes, 2000, trigger);
-  const animatedLegendarios = useAnimatedCounter(data?.totalLegendarios, 2000, trigger);
-  const animatedTops = useAnimatedCounter(data?.totalTops, 2000, trigger);
+  const animatedSedes = useAnimatedCounter(data?.totalSedes, 2000);
+  const animatedLegendarios = useAnimatedCounter(data?.totalLegendarios, 2000);
+  const animatedTops = useAnimatedCounter(data?.totalTops, 2000);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-black text-white py-28">
+    <section className="relative overflow-hidden bg-black text-white py-28">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.85)_0%,_rgba(0,0,0,0.95)_45%,_#000_100%)]" />
         <div className="absolute inset-0">
@@ -47,7 +44,7 @@ export const GlobalImpactSection = () => {
           )}
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
+        <div className="mt-12 flex flex-wrap justify-center gap-8">
           {[
             { label: "Sedes", value: animatedSedes, target: data?.totalSedes ?? 0 },
             { label: "Legendários", value: animatedLegendarios, target: data?.totalLegendarios ?? 0 },
@@ -59,24 +56,21 @@ export const GlobalImpactSection = () => {
               : counter.value.toString().padStart(digitsLength, "0");
 
             return (
-              <div
-                key={counter.label}
-                className="flex flex-col items-center justify-between rounded-[34px] bg-gradient-to-br from-white/[0.12] via-white/[0.08] to-transparent p-8 text-center shadow-2xl shadow-black/60 backdrop-blur"
-              >
-                <div className="flex gap-1 rounded-[24px] bg-black/70 px-3 py-4 text-4xl font-bold tracking-[0.3em] text-white md:text-5xl">
-                  {displayValue.split("").map((digit, index) => (
+              <div key={counter.label} className="flex flex-col items-center">
+                <div className="flex overflow-hidden rounded-t-[28px] bg-white text-5xl font-bold text-black shadow-2xl md:text-6xl">
+                  {displayValue.split("").map((digit, index, arr) => (
                     <span
                       key={`${counter.label}-${index}`}
-                      className="flex h-16 w-12 items-center justify-center rounded bg-black text-white shadow-inner md:h-20 md:w-14"
+                      className={`flex h-20 w-14 items-center justify-center border-black/20 md:h-24 md:w-16 ${
+                        index !== arr.length - 1 ? "border-r" : ""
+                      }`}
                     >
                       {digit}
                     </span>
                   ))}
                 </div>
-                <div className="mt-5 w-full rounded-full bg-legendarios-orange py-2">
-                  <span className="block text-xs font-semibold uppercase tracking-[0.4em] text-black">
-                    {counter.label}
-                  </span>
+                <div className="w-full rounded-b-[28px] bg-black px-8 py-3 text-center text-sm font-semibold uppercase tracking-[0.4em] text-legendarios-orange md:text-base">
+                  {counter.label}
                 </div>
               </div>
             );
@@ -101,22 +95,22 @@ export const GlobalImpactSection = () => {
             </p>
           )}
           {!isLoading && data && (
-            <div className="mt-6 flex flex-wrap gap-4">
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
               {data.countries.map((country) => (
                 <div
                   key={country.country}
-                  className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 transition hover:border-legendarios-orange/60 hover:bg-white/20"
+                  className="flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-black shadow-lg shadow-black/30"
                 >
                   {country.flagUrl && (
-                    <img
-                      src={country.flagUrl}
-                      alt={country.country}
-                      className="h-7 w-7 rounded-full border border-white/20 object-cover"
-                    />
+                    <span className="flex h-7 w-10 items-center justify-center rounded-xl bg-black/5">
+                      <img
+                        src={country.flagUrl}
+                        alt={country.country}
+                        className="h-6 w-6 rounded-full object-cover"
+                      />
+                    </span>
                   )}
-                  <span className="text-xs font-semibold uppercase tracking-wide text-white">
-                    {country.country}
-                  </span>
+                  <span>{country.country}</span>
                 </div>
               ))}
             </div>

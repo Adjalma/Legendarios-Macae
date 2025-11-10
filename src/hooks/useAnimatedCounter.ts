@@ -2,30 +2,22 @@ import { useEffect, useRef, useState } from "react";
 
 export const useAnimatedCounter = (
   targetValue?: number,
-  duration = 1800,
-  trigger = 0
+  duration = 1800
 ) => {
   const [currentValue, setCurrentValue] = useState(0);
-  const previousTarget = useRef<number | undefined>(undefined);
-  const frameRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!targetValue || targetValue <= 0) {
       setCurrentValue(0);
-      previousTarget.current = targetValue;
       return;
     }
 
-    if (previousTarget.current === targetValue && trigger === 0) {
-      return;
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
     }
 
-    previousTarget.current = targetValue;
-
-    if (frameRef.current) {
-      cancelAnimationFrame(frameRef.current);
-    }
-
+    setCurrentValue(0);
     const startTime = performance.now();
 
     const update = (time: number) => {
@@ -34,17 +26,18 @@ export const useAnimatedCounter = (
       setCurrentValue(Math.floor(easedProgress * targetValue));
 
       if (progress < 1) {
-        frameRef.current = requestAnimationFrame(update);
+        animationFrameRef.current = requestAnimationFrame(update);
       }
     };
 
-    frameRef.current = requestAnimationFrame(update);
+    animationFrameRef.current = requestAnimationFrame(update);
+
     return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [targetValue, duration, trigger]);
+  }, [targetValue, duration]);
 
   return currentValue;
 };
