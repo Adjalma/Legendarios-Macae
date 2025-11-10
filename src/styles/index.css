@@ -44,6 +44,8 @@ body {
 }
 
 .animate-stars-pan {
-  animation: stars-pan 45s ease-in-out infinite;
+  animation: stars-pan 60s linear infinite;
+  background-size: 300px 300px;
+  filter: brightness(0.9);
 }
 
