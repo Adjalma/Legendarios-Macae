@@ -11,23 +11,24 @@ export const GlobalImpactSection = () => {
   return (
     <section className="relative overflow-hidden bg-black text-white py-36">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/60 to-black/95" />
         <video
-          className="absolute inset-0 h-full w-full object-cover opacity-65"
-          src="https://legendariosmacae-static.s3.amazonaws.com/video/earth-loop.mp4"
+          className="absolute inset-0 h-full w-full object-cover opacity-80"
+          src="https://cdn.coverr.co/videos/coverr-small-blue-planet-1822/1080p.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1600&q=80"
+        />
+        <video
+          className="absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-35"
+          src="https://cdn.coverr.co/videos/coverr-space-dust-velocity-6737/1080p.mp4"
           autoPlay
           muted
           loop
           playsInline
         />
-        <video
-          className="absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-25"
-          src="https://legendariosmacae-static.s3.amazonaws.com/video/stars-loop.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/65 to-black/95" />
       </div>
       <div className="relative mx-auto max-w-6xl px-4 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
