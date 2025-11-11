@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useLegendariosRioTops } from "../../hooks/useLegendariosRioTops";
 import { formatNumber } from "../../utils/number";
 
@@ -45,6 +46,15 @@ export const TopsPage = () => {
           Dados sincronizados diretamente do site Legendários Rio. Filtre por região e status para
           encontrar o seu próximo desafio.
         </p>
+        <div className="mt-6 flex justify-center">
+          <Link
+            to="/tops/global"
+            className="inline-flex items-center gap-2 rounded-full border border-legendarios-orange px-5 py-2 text-xs font-semibold uppercase tracking-wide text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
+          >
+            Ver TOPs ao redor do mundo
+            <span aria-hidden>↗</span>
+          </Link>
+        </div>
       </header>
 
       <div className="mt-12 flex flex-wrap items-center justify-between gap-4">

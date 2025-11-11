@@ -1,9 +1,23 @@
-const localMenus = [
+import { Link } from "react-router-dom";
+
+type MenuItem = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+type MenuColumn = {
+  title: string;
+  items: MenuItem[];
+};
+
+const localMenus: MenuColumn[] = [
   {
     title: "Mapa do site",
     items: [
       { label: "Início", href: "/" },
       { label: "TOPs RJ", href: "/tops" },
+      { label: "TOPs Globais", href: "/tops/global" },
       { label: "Histórias", href: "/historias" },
       { label: "Mídia", href: "/midia" },
       { label: "Sobre", href: "/sobre" },
@@ -13,10 +27,10 @@ const localMenus = [
   {
     title: "Recursos oficiais",
     items: [
-      { label: "Legendários Global", href: "https://loslegendarios.org/" },
-      { label: "Legendários Brasil", href: "https://legendariosbrasil.com.br/" },
-      { label: "Legendários Rio", href: "https://legendariosrio.com.br/" },
-      { label: "Encontre um TOP", href: "https://loslegendarios.org/nacao/encontre-um-top" }
+      { label: "Legendários Global", href: "https://loslegendarios.org/", external: true },
+      { label: "Legendários Brasil", href: "https://legendariosbrasil.com.br/", external: true },
+      { label: "Legendários Rio", href: "https://legendariosrio.com.br/", external: true },
+      { label: "Encontre um TOP", href: "https://loslegendarios.org/nacao/encontre-um-top", external: true }
     ]
   }
 ];
@@ -51,9 +65,20 @@ export const Footer = () => {
               <ul className="mt-4 space-y-2 text-sm">
                 {column.items.map((item) => (
                   <li key={item.label}>
-                    <a href={item.href} className="transition hover:text-black">
-                      {item.label}
-                    </a>
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition hover:text-black"
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link to={item.href} className="transition hover:text-black">
+                        {item.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -90,15 +115,15 @@ export const Footer = () => {
             </button>
           </form>
           <div className="space-y-2 text-sm">
-            <a href="/contato" className="block">
+            <Link to="/contato" className="block">
               Contato
-            </a>
-            <a href="/politica-de-privacidade" className="block">
+            </Link>
+            <Link to="/politica-de-privacidade" className="block">
               Política de Privacidade
-            </a>
-            <a href="/termos-de-uso" className="block">
+            </Link>
+            <Link to="/termos-de-uso" className="block">
               Termos de Uso
-            </a>
+            </Link>
           </div>
         </div>
       </div>

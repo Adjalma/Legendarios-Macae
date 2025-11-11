@@ -26,3 +26,16 @@ export type RioTopEvent = {
   coverImage?: string;
 };
 
+export type GlobalTopEvent = {
+  id: string;
+  trackName: string;
+  topNumber?: string;
+  month?: string;
+  country?: string;
+  dateText?: string;
+  startDateIso?: string;
+  location?: string;
+  badgeUrl?: string;
+  link?: string;
+};
+
