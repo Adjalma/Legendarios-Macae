@@ -21,37 +21,6 @@ const localMenus = [
   }
 ];
 
-const socialProfiles = [
-  {
-    label: "Legendários Macaé",
-    handle: "@legendarios.macae",
-    channel: "Instagram",
-    url: "https://www.instagram.com/legendarios.macae?igsh=ZHFrMG9hb3ducTVt",
-    icon: "/assets/icon-instagram.svg"
-  },
-  {
-    label: "Legendários Rio",
-    handle: "@legendariosriodejaneiro",
-    channel: "Instagram",
-    url: "https://www.instagram.com/legendariosriodejaneiro?igsh=MWE5ZW9yNWh3YTI3Yg==",
-    icon: "/assets/icon-instagram.svg"
-  },
-  {
-    label: "Legendários Brasil",
-    handle: "LegendariosBrasil",
-    channel: "YouTube",
-    url: "https://www.youtube.com/@LegendariosBrasil",
-    icon: "/assets/icon-youtube.svg"
-  },
-  {
-    label: "Legendários Global",
-    handle: "@legendarios",
-    channel: "Facebook",
-    url: "https://www.facebook.com/legendarios",
-    icon: "/assets/icon-facebook.svg"
-  }
-];
-
 export const Footer = () => {
   return (
     <footer className="bg-legendarios-orange text-black">
@@ -73,26 +42,6 @@ export const Footer = () => {
             Movimento de homens corajosos e quebrantados diante de Deus, conectando Macaé ao legado
             global Legendários e servindo famílias do Norte Fluminense.
           </p>
-          <ul className="space-y-3">
-            {socialProfiles.map((profile) => (
-              <li key={profile.url}>
-                <a
-                  href={profile.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-3 rounded-full border border-black/10 bg-black/5 px-4 py-2 text-sm font-semibold transition hover:border-black hover:bg-black/10"
-                >
-                  <img src={profile.icon} alt={profile.channel} className="h-6 w-6" />
-                  <div className="flex flex-col leading-tight">
-                    <span>{profile.label}</span>
-                    <span className="text-xs font-normal uppercase tracking-wide text-black/60">
-                      {profile.channel} • {profile.handle}
-                    </span>
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2">
