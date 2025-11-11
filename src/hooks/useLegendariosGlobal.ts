@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchGlobalImpact } from "../services/legendariosGlobal";
+import { fetchGlobalImpact, globalImpactFallback } from "../services/legendariosGlobal";
 
 export const GLOBAL_IMPACT_QUERY_KEY = ["legendarios", "global-impact"];
 
@@ -8,7 +8,16 @@ export const useLegendariosGlobal = () => {
     queryKey: GLOBAL_IMPACT_QUERY_KEY,
     queryFn: fetchGlobalImpact,
     refetchInterval: 1000 * 60 * 60, // 1 hora
-    staleTime: 1000 * 60 * 30 // 30 minutos
+    staleTime: 1000 * 60 * 30, // 30 minutos
+    initialData: () => ({
+      ...globalImpactFallback,
+      lastUpdated: globalImpactFallback.lastUpdated ?? new Date().toISOString()
+    }),
+    placeholderData: (previousData) =>
+      previousData ?? {
+        ...globalImpactFallback,
+        lastUpdated: new Date().toISOString()
+      }
   });
 };
 

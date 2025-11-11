@@ -4,7 +4,7 @@ import type { GlobalImpactResponse, GlobalCountryStat } from "../types/legendari
 const LOS_LEGENDARIOS_BASE_URL = "https://loslegendarios.org";
 const ALL_ORIGINS_PROXY = "https://api.allorigins.win/raw";
 
-const fallbackResponse: GlobalImpactResponse = {
+export const globalImpactFallback: GlobalImpactResponse = {
   totalLegendarios: 165_509,
   totalSedes: 188,
   totalTops: 1_250,
@@ -51,10 +51,10 @@ const parseGlobalCounters = (html: string): GlobalImpactResponse => {
     ...cleanHtml.matchAll(/statistics_numbers[^>]*data-count="([\d\.]+)"/gi)
   ];
 
-  const totalSedes = toNumber(counterMatches?.[0]?.[1]) || fallbackResponse.totalSedes;
+  const totalSedes = toNumber(counterMatches?.[0]?.[1]) || globalImpactFallback.totalSedes;
   const totalLegendarios =
-    toNumber(counterMatches?.[1]?.[1]) || fallbackResponse.totalLegendarios;
-  const totalTops = toNumber(counterMatches?.[2]?.[1]) || fallbackResponse.totalTops;
+    toNumber(counterMatches?.[1]?.[1]) || globalImpactFallback.totalLegendarios;
+  const totalTops = toNumber(counterMatches?.[2]?.[1]) || globalImpactFallback.totalTops;
 
   const countries: GlobalCountryStat[] = [];
   const countriesSectionMatch = cleanHtml.match(/<ul class="countries">(.*?)<\/ul>/i);
@@ -76,7 +76,7 @@ const parseGlobalCounters = (html: string): GlobalImpactResponse => {
     totalLegendarios,
     totalSedes,
     totalTops,
-    countries: countries.length > 0 ? countries : fallbackResponse.countries,
+    countries: countries.length > 0 ? countries : globalImpactFallback.countries,
     lastUpdated: new Date().toISOString()
   };
 };
@@ -96,12 +96,12 @@ export const fetchGlobalImpact = async (): Promise<GlobalImpactResponse> => {
     });
 
     if (!response.data) {
-      return { ...fallbackResponse, lastUpdated: new Date().toISOString() };
+      return { ...globalImpactFallback, lastUpdated: new Date().toISOString() };
     }
 
     return parseGlobalCounters(response.data);
   } catch {
-    return { ...fallbackResponse, lastUpdated: new Date().toISOString() };
+    return { ...globalImpactFallback, lastUpdated: new Date().toISOString() };
   }
 };
 
