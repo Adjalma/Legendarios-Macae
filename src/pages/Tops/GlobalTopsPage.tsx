@@ -109,15 +109,6 @@ export const GlobalTopsPage = () => {
             são sincronizados diretamente de loslegendarios.org/top, mantendo as
             datas, cidades e brasões oficiais de cada track.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              to="/tops/rio"
-              className="inline-flex items-center gap-2 rounded-full border border-legendarios-orange px-5 py-2 text-xs font-semibold uppercase tracking-wide text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
-            >
-              Ver agenda Rio de Janeiro
-              <span aria-hidden>↗</span>
-            </Link>
-          </div>
         </header>
 
         <div className="mt-12 grid gap-6 rounded-3xl border border-white/10 bg-black/40 p-6 backdrop-blur md:grid-cols-4">

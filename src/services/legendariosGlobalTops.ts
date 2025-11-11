@@ -1,7 +1,8 @@
 import { httpClient } from "./httpClient";
 import type { GlobalTopEvent } from "../types/legendarios";
 
-const LOS_LEGENDARIOS_TOP_URL = "https://loslegendarios.org/top";
+const WP_TOP_PAGE_ENDPOINT =
+  "https://loslegendarios.org/wp-json/wp/v2/pages?slug=top";
 const ALL_ORIGINS_PROXY = "https://api.allorigins.win/raw?url=";
 
 const normalise = (value?: string | null) =>
@@ -28,15 +29,15 @@ const resolveAssetUrl = (value?: string | null) => {
 };
 
 const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
-  const cards: GlobalTopEvent[] = [];
   const parser = new DOMParser();
-  const document = parser.parseFromString(html, "text/html");
+  const doc = parser.parseFromString(html, "text/html");
   const articles = Array.from(
-    document.querySelectorAll<HTMLElement>("article[data-country]")
+    doc.querySelectorAll<HTMLElement>("article[data-country]")
   );
 
-  articles.forEach((element, index) => {
-    const attr = (name: string) => normalise(element.getAttribute(name));
+  return articles.map((element, index) => {
+    const attr = (name: string) =>
+      normalise(element.getAttribute(name) ?? "");
 
     const trackName =
       attr("data-track") ||
@@ -61,7 +62,6 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
           .querySelector("time, .card-event__date")
           ?.textContent ?? ""
       );
-
     const startDateIso = attr("data-date") || undefined;
 
     const location =
@@ -91,12 +91,12 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
         element.querySelector("img")?.getAttribute("src")
       );
 
-    const rawLink =
+    const link =
       element.getAttribute("data-link") ||
       element.querySelector("a")?.getAttribute("href") ||
       undefined;
 
-    cards.push({
+    return {
       id: attr("data-id") || attr("data-top") || `${index}`,
       trackName,
       topNumber,
@@ -106,21 +106,18 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
       startDateIso,
       location,
       badgeUrl,
-      link: rawLink ? resolveAssetUrl(rawLink) : undefined
-    });
+      link: link ? resolveAssetUrl(link) : undefined
+    };
   });
-
-  return cards;
 };
 
 export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
   try {
     const response = await httpClient.get<string>(
-      `${ALL_ORIGINS_PROXY}${encodeURIComponent(LOS_LEGENDARIOS_TOP_URL)}`,
+      `${ALL_ORIGINS_PROXY}${encodeURIComponent(WP_TOP_PAGE_ENDPOINT)}`,
       {
         headers: {
-          Accept:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+          Accept: "application/json"
         },
         responseType: "text",
         transformResponse: (data) => data
@@ -131,12 +128,30 @@ export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
       return [];
     }
 
-    const parsed = parseGlobalTopsFromHtml(response.data);
-    return parsed.filter((item) => item.trackName);
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(response.data);
+    } catch {
+      return [];
+    }
+
+    const content =
+      (Array.isArray(parsedJson)
+        ? parsedJson?.[0]?.content?.rendered
+        : undefined) ?? "";
+
+    if (!content) {
+      return [];
+    }
+
+    return parseGlobalTopsFromHtml(content).filter(
+      (item) => item.trackName && item.country
+    );
   } catch {
     return [];
   }
 };
+
 
 
 
