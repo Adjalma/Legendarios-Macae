@@ -5,8 +5,7 @@ import { MobileMenu } from "./MobileMenu";
 
 const links: NavigationLink[] = [
   { label: "Início", path: "/" },
-  { label: "TOPs RJ", path: "/tops" },
-  { label: "TOPs Globais", path: "/tops/global" },
+  { label: "TOPs", path: "/tops" },
   { label: "Histórias", path: "/historias" },
   { label: "Mídia", path: "/midia" },
   { label: "Sobre", path: "/sobre" },

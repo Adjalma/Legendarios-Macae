@@ -16,8 +16,7 @@ const localMenus: MenuColumn[] = [
     title: "Mapa do site",
     items: [
       { label: "Início", href: "/" },
-      { label: "TOPs RJ", href: "/tops" },
-      { label: "TOPs Globais", href: "/tops/global" },
+      { label: "TOPs", href: "/tops" },
       { label: "Histórias", href: "/historias" },
       { label: "Mídia", href: "/midia" },
       { label: "Sobre", href: "/sobre" },
@@ -30,7 +29,7 @@ const localMenus: MenuColumn[] = [
       { label: "Legendários Global", href: "https://loslegendarios.org/", external: true },
       { label: "Legendários Brasil", href: "https://legendariosbrasil.com.br/", external: true },
       { label: "Legendários Rio", href: "https://legendariosrio.com.br/", external: true },
-      { label: "Encontre um TOP", href: "https://loslegendarios.org/nacao/encontre-um-top", external: true }
+      { label: "Encontre um TOP", href: "/tops" }
     ]
   }
 ];

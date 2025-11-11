@@ -7,79 +7,108 @@ const ALL_ORIGINS_PROXY = "https://api.allorigins.win/raw?url=";
 const normalise = (value?: string | null) =>
   value?.replace(/\s+/g, " ").trim() ?? "";
 
-const extractAttribute = (html: string, attribute: string) => {
-  const regex = new RegExp(`${attribute}="([^"]*)"`, "i");
-  return regex.exec(html)?.[1] ?? "";
-};
-
-const extractFirstText = (html: string, selectors: string[]) => {
-  for (const selector of selectors) {
-    const regex = new RegExp(
-      `<${selector}[^>]*>([\\s\\S]*?)<\\/${selector}>`,
-      "i"
-    );
-    const match = regex.exec(html);
-    if (match?.[1]) {
-      return normalise(match[1].replace(/<[^>]+>/g, ""));
-    }
+const resolveAssetUrl = (value?: string | null) => {
+  if (!value) {
+    return undefined;
   }
-  return "";
+
+  if (value.startsWith("http")) {
+    return value;
+  }
+
+  if (value.startsWith("//")) {
+    return `https:${value}`;
+  }
+
+  if (value.startsWith("/")) {
+    return `https://loslegendarios.org${value}`;
+  }
+
+  return value;
 };
 
 const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
   const cards: GlobalTopEvent[] = [];
-  const cardRegex =
-    /<article[^>]*data-country="[^"]+"[^>]*data-month="[^"]+"[^>]*>([\s\S]*?)<\/article>/gi;
+  const parser = new DOMParser();
+  const document = parser.parseFromString(html, "text/html");
+  const articles = Array.from(
+    document.querySelectorAll<HTMLElement>("article[data-country]")
+  );
 
-  let match: RegExpExecArray | null;
+  articles.forEach((element, index) => {
+    const attr = (name: string) => normalise(element.getAttribute(name));
 
-  while ((match = cardRegex.exec(html))) {
-    const rawCard = match[0];
-    const body = match[1] ?? "";
-
-    const id =
-      extractAttribute(rawCard, "data-id") ||
-      extractAttribute(rawCard, "data-top") ||
-      `${cards.length}`;
     const trackName =
-      extractAttribute(rawCard, "data-track") ||
-      extractFirstText(body, ["h3", "h4", "h5"]);
+      attr("data-track") ||
+      normalise(
+        element
+          .querySelector("h3, h4, h5, .card-event__title")
+          ?.textContent ?? ""
+      );
+
     const topNumber =
-      extractAttribute(rawCard, "data-top") ||
-      extractFirstText(body, ["strong", "span"]);
-    const country = extractAttribute(rawCard, "data-country");
-    const month = extractAttribute(rawCard, "data-month");
+      attr("data-top") ||
+      normalise(
+        element.querySelector("strong, span")?.textContent ?? ""
+      );
+
+    const country = attr("data-country") || "Global";
+    const month = attr("data-month");
     const dateText =
-      extractAttribute(rawCard, "data-date-human") ||
-      extractFirstText(body, ["time", "p"]);
-    const startDateIso = extractAttribute(rawCard, "data-date");
-    const city = extractAttribute(rawCard, "data-city");
-    const state = extractAttribute(rawCard, "data-state");
+      attr("data-date-human") ||
+      normalise(
+        element
+          .querySelector("time, .card-event__date")
+          ?.textContent ?? ""
+      );
+
+    const startDateIso = attr("data-date") || undefined;
+
     const location =
-      extractAttribute(rawCard, "data-location") ||
-      [city, state, country].filter(Boolean).join(" • ") ||
-      extractFirstText(body, ["em", "small", "p"]);
+      attr("data-location") ||
+      normalise(
+        [
+          element.getAttribute("data-city"),
+          element.getAttribute("data-state"),
+          element.getAttribute("data-country")
+        ]
+          .filter(Boolean)
+          .join(" • ")
+      ) ||
+      normalise(
+        element
+          .querySelector("em, .card-event__location, p")
+          ?.textContent ?? ""
+      );
+
     const badgeUrl =
-      extractAttribute(rawCard, "data-badge") ||
-      extractAttribute(rawCard, "data-img") ||
-      extractAttribute(body, "src");
-    const link =
-      extractAttribute(rawCard, "data-link") ||
-      extractAttribute(body, "href");
+      resolveAssetUrl(element.getAttribute("data-badge")) ||
+      resolveAssetUrl(element.getAttribute("data-img")) ||
+      resolveAssetUrl(
+        element.querySelector("img")?.getAttribute("data-src")
+      ) ||
+      resolveAssetUrl(
+        element.querySelector("img")?.getAttribute("src")
+      );
+
+    const rawLink =
+      element.getAttribute("data-link") ||
+      element.querySelector("a")?.getAttribute("href") ||
+      undefined;
 
     cards.push({
-      id,
-      trackName: normalise(trackName),
-      topNumber: normalise(topNumber),
-      country: normalise(country),
-      month: normalise(month),
-      dateText: normalise(dateText),
-      startDateIso: startDateIso || undefined,
-      location: normalise(location),
-      badgeUrl: badgeUrl || undefined,
-      link: link || undefined
+      id: attr("data-id") || attr("data-top") || `${index}`,
+      trackName,
+      topNumber,
+      country,
+      month,
+      dateText,
+      startDateIso,
+      location,
+      badgeUrl,
+      link: rawLink ? resolveAssetUrl(rawLink) : undefined
     });
-  }
+  });
 
   return cards;
 };
@@ -90,7 +119,8 @@ export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
       `${ALL_ORIGINS_PROXY}${encodeURIComponent(LOS_LEGENDARIOS_TOP_URL)}`,
       {
         headers: {
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         },
         responseType: "text",
         transformResponse: (data) => data
@@ -107,5 +137,6 @@ export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
     return [];
   }
 };
+
 
 

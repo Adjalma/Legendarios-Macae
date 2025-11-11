@@ -12,8 +12,8 @@ import { TermsPage } from "../pages/Legal/TermsPage";
 export const AppRoutes = () => {
   return useRoutes([
     { path: "/", element: <HomePage /> },
-    { path: "/tops", element: <TopsPage /> },
-    { path: "/tops/global", element: <GlobalTopsPage /> },
+    { path: "/tops", element: <GlobalTopsPage /> },
+    { path: "/tops/rio", element: <TopsPage /> },
     { path: "/historias", element: <StoriesPage /> },
     { path: "/midia", element: <MediaPage /> },
     { path: "/sobre", element: <AboutPage /> },

@@ -48,10 +48,10 @@ export const TopsPage = () => {
         </p>
         <div className="mt-6 flex justify-center">
           <Link
-            to="/tops/global"
+            to="/tops"
             className="inline-flex items-center gap-2 rounded-full border border-legendarios-orange px-5 py-2 text-xs font-semibold uppercase tracking-wide text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
           >
-            Ver TOPs ao redor do mundo
+            Ver agenda global
             <span aria-hidden>↗</span>
           </Link>
         </div>
