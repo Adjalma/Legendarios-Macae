@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useLegendariosGlobalTops } from "../../hooks/useLegendariosGlobalTops";
@@ -72,9 +72,12 @@ const extractBadge = (badge?: string) => {
   return badge;
 };
 
+const ITEMS_PER_PAGE = 6;
+
 export const GlobalTopsPage = () => {
   const { data, isLoading, isError } = useLegendariosGlobalTops();
   const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const countries = useMemo(() => {
     const values = new Set<string>();
@@ -134,6 +137,28 @@ export const GlobalTopsPage = () => {
     }
     return applyFilters(data, filters);
   }, [data, filters]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredTops.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedTops = filteredTops.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.country, filters.city, filters.month, filters.search]);
+
+  // Debug: Log countries and cities count
+  useEffect(() => {
+    if (data && data.length > 0) {
+      const uniqueCountries = new Set(data.map((t) => t.country).filter(Boolean));
+      const uniqueCities = new Set(data.map((t) => t.city).filter(Boolean));
+      console.log(`📊 TOPs globais carregados: ${data.length}`);
+      console.log(`🌍 Países encontrados: ${uniqueCountries.size}`, Array.from(uniqueCountries).sort());
+      console.log(`🏙️ Cidades encontradas: ${uniqueCities.size}`);
+    }
+  }, [data]);
 
   return (
     <div className="bg-gradient-to-b from-legendarios-charcoal via-legendarios-charcoal to-black text-white">
@@ -262,7 +287,7 @@ export const GlobalTopsPage = () => {
           )}
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {filteredTops.map((top) => (
+            {paginatedTops.map((top) => (
               <motion.article
                 key={`${top.id}-${top.trackName}`}
                 initial={{ opacity: 0, y: 24 }}
@@ -328,6 +353,70 @@ export const GlobalTopsPage = () => {
               </motion.article>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-legendarios-orange/30 bg-black/40 px-4 py-2 text-sm text-white transition hover:bg-legendarios-orange/20 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                «
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                // Show first page, last page, current page, and pages around current
+                const showPage =
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1);
+                
+                if (!showPage) {
+                  // Show ellipsis
+                  if (page === currentPage - 2 || page === currentPage + 2) {
+                    return (
+                      <span key={page} className="px-2 text-white/40">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                }
+
+                return (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => setCurrentPage(page)}
+                    className={`rounded-lg border px-4 py-2 text-sm transition ${
+                      currentPage === page
+                        ? "border-legendarios-orange bg-legendarios-orange text-black"
+                        : "border-legendarios-orange/30 bg-black/40 text-white hover:bg-legendarios-orange/20"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+              
+              <button
+                type="button"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-legendarios-orange/30 bg-black/40 px-4 py-2 text-sm text-white transition hover:bg-legendarios-orange/20 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                »
+              </button>
+            </div>
+          )}
+
+          {filteredTops.length > 0 && (
+            <p className="mt-6 text-center text-xs text-white/50">
+              Mostrando {startIndex + 1} a {Math.min(endIndex, filteredTops.length)} de {filteredTops.length} TOPs
+            </p>
+          )}
         </section>
       </section>
     </div>

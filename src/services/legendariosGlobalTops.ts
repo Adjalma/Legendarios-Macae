@@ -129,13 +129,7 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
     );
     const dateText = normalise(dateTextEl?.textContent);
 
-    // Country (from flag image alt)
-    const flagImg = cardElement.querySelector<HTMLImageElement>(
-      ".info img[alt]"
-    );
-    const country = normalise(flagImg?.getAttribute("alt"));
-
-    // Location
+    // Location - extract first
     const locationEls = cardElement.querySelectorAll<HTMLElement>(
       "p.card-text"
     );
@@ -143,12 +137,44 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
       (el) => !el.classList.contains("text-capitalize")
     );
     const location = normalise(locationEl?.textContent);
+
+    // Country (from flag image alt) - try multiple selectors
+    let country = normalise(
+      cardElement.querySelector<HTMLImageElement>(".info img[alt]")?.getAttribute("alt")
+    );
     
-    // Extract city from location (format: "City, State, Country")
+    // Fallback: try any img with alt in .info
+    if (!country) {
+      const infoImgs = cardElement.querySelectorAll<HTMLImageElement>(".info img");
+      for (const img of Array.from(infoImgs)) {
+        const alt = normalise(img.getAttribute("alt"));
+        if (alt && alt.length > 2) {
+          country = alt;
+          break;
+        }
+      }
+    }
+    
+    // Fallback: extract from location if it contains country name
+    if (!country && location) {
+      const locationParts = location.split(",").map((p) => p.trim());
+      const possibleCountry = locationParts[locationParts.length - 1];
+      if (possibleCountry && possibleCountry.length > 2) {
+        country = possibleCountry;
+      }
+    }
+    
+    // Extract city from location (format: "City, State, Country" or "City, Country")
     let city: string | undefined;
     if (location) {
       const parts = location.split(",").map((p) => p.trim());
+      // First part is usually the city
       city = parts[0] || undefined;
+      
+      // Clean up common prefixes/suffixes
+      if (city) {
+        city = city.replace(/^(Cidade de|City of|Ciudad de)\s+/i, "").trim();
+      }
     }
 
     // Link - check multiple possible locations
@@ -199,51 +225,76 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
   return cards;
 };
 
-const fetchPage = async (pageNumber: number): Promise<GlobalTopEvent[]> => {
-  try {
-    const url = pageNumber === 1 
-      ? LOS_LEGENDARIOS_TOP_URL 
-      : `${LOS_LEGENDARIOS_TOP_URL}?page=${pageNumber}#list`;
-    
-    const response = await httpClient.get<string>(
-      `${ALL_ORIGINS_PROXY}${encodeURIComponent(url)}`,
-      {
-        headers: {
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-        },
-        responseType: "text",
-        transformResponse: (data) => data
+const fetchPage = async (pageNumber: number, retries = 2): Promise<GlobalTopEvent[]> => {
+  const url = pageNumber === 1 
+    ? LOS_LEGENDARIOS_TOP_URL 
+    : `${LOS_LEGENDARIOS_TOP_URL}?page=${pageNumber}#list`;
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await httpClient.get<string>(
+        `${ALL_ORIGINS_PROXY}${encodeURIComponent(url)}`,
+        {
+          timeout: 30000, // 30 segundos
+          headers: {
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+          },
+          responseType: "text",
+          transformResponse: (data) => data
+        }
+      );
+
+      if (!response.data) {
+        return [];
       }
-    );
 
-    if (!response.data) {
-      return [];
+      return parseGlobalTopsFromHtml(response.data).filter(
+        (item) => item.trackName
+      );
+    } catch (error) {
+      if (attempt === retries) {
+        console.warn(`Erro ao buscar página ${pageNumber} após ${retries + 1} tentativas:`, error);
+        return [];
+      }
+      // Aguardar antes de tentar novamente (backoff exponencial)
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
     }
-
-    return parseGlobalTopsFromHtml(response.data).filter(
-      (item) => item.trackName
-    );
-  } catch (error) {
-    console.warn(`Erro ao buscar página ${pageNumber}:`, error);
-    return [];
   }
+  
+  return [];
 };
 
 export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
   try {
-    // Buscar todas as 9 páginas em paralelo
-    const pagePromises = Array.from({ length: 9 }, (_, i) => fetchPage(i + 1));
-    const pageResults = await Promise.allSettled(pagePromises);
-    
-    // Combinar todos os resultados (incluindo páginas que falharam)
+    // Buscar páginas em batches de 3 para não sobrecarregar o proxy
     const allTops: GlobalTopEvent[] = [];
-    pageResults.forEach((result, index) => {
-      if (result.status === "fulfilled") {
-        allTops.push(...result.value);
-      } else {
-        console.warn(`Página ${index + 1} falhou:`, result.reason);
+    const batchSize = 3;
+    const totalPages = 9;
+    
+    for (let batchStart = 1; batchStart <= totalPages; batchStart += batchSize) {
+      const batchEnd = Math.min(batchStart + batchSize - 1, totalPages);
+      const batch = Array.from(
+        { length: batchEnd - batchStart + 1 },
+        (_, i) => batchStart + i
+      );
+      
+      // Buscar batch em paralelo
+      const batchPromises = batch.map((pageNum) => fetchPage(pageNum));
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      batchResults.forEach((result, idx) => {
+        if (result.status === "fulfilled") {
+          allTops.push(...result.value);
+        } else {
+          console.warn(`Página ${batch[idx]} falhou:`, result.reason);
+        }
+      });
+      
+      // Aguardar um pouco entre batches para não sobrecarregar
+      if (batchEnd < totalPages) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
-    });
+    }
     
     // Remover duplicatas baseado em trackName + topNumber + data + cidade
     const uniqueTops = new Map<string, GlobalTopEvent>();
@@ -255,7 +306,13 @@ export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
     });
     
     const finalTops = Array.from(uniqueTops.values());
-    console.log(`TOPs globais carregados: ${finalTops.length} únicos de ${allTops.length} totais`);
+    
+    // Log statistics
+    const uniqueCountries = new Set(finalTops.map((t) => t.country).filter(Boolean));
+    const uniqueCities = new Set(finalTops.map((t) => t.city).filter(Boolean));
+    console.log(`✅ TOPs globais carregados: ${finalTops.length} únicos de ${allTops.length} totais`);
+    console.log(`🌍 Países únicos: ${uniqueCountries.size}`, Array.from(uniqueCountries).sort());
+    console.log(`🏙️ Cidades únicas: ${uniqueCities.size}`);
     
     return finalTops;
   } catch (error) {
