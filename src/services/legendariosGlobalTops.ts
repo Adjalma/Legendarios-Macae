@@ -1,8 +1,7 @@
 import { httpClient } from "./httpClient";
 import type { GlobalTopEvent } from "../types/legendarios";
 
-const WP_TOP_PAGE_ENDPOINT =
-  "https://loslegendarios.org/wp-json/wp/v2/pages?slug=top";
+const LOS_LEGENDARIOS_TOP_URL = "https://loslegendarios.org/top";
 const ALL_ORIGINS_PROXY = "https://api.allorigins.win/raw?url=";
 
 const normalise = (value?: string | null) =>
@@ -28,96 +27,106 @@ const resolveAssetUrl = (value?: string | null) => {
   return value;
 };
 
+const monthMap: Record<string, string> = {
+  jan: "janeiro",
+  fev: "fevereiro",
+  mar: "março",
+  abr: "abril",
+  mai: "maio",
+  jun: "junho",
+  jul: "julho",
+  ago: "agosto",
+  set: "setembro",
+  out: "outubro",
+  nov: "novembro",
+  dez: "dezembro"
+};
+
 const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
-  const articles = Array.from(
-    doc.querySelectorAll<HTMLElement>("article[data-country]")
-  );
+  const cards: GlobalTopEvent[] = [];
 
-  return articles.map((element, index) => {
-    const attr = (name: string) =>
-      normalise(element.getAttribute(name) ?? "");
+  doc.querySelectorAll(".top-wrapper .card").forEach((cardElement, index) => {
+    // Badge (brasão)
+    const badgeImg = cardElement.querySelector<HTMLImageElement>(
+      "img.card-img-top"
+    );
+    const badgeUrl = badgeImg?.src
+      ? resolveAssetUrl(badgeImg.src)
+      : undefined;
 
-    const trackName =
-      attr("data-track") ||
-      normalise(
-        element
-          .querySelector("h3, h4, h5, .card-event__title")
-          ?.textContent ?? ""
-      );
+    // Track name
+    const trackNameEl = cardElement.querySelector<HTMLElement>("h5.card-title");
+    const trackName = normalise(trackNameEl?.textContent);
 
-    const topNumber =
-      attr("data-top") ||
-      normalise(
-        element.querySelector("strong, span")?.textContent ?? ""
-      );
+    // TOP number
+    const topNumberEl = cardElement.querySelector<HTMLElement>(
+      "h4.card-title.fs-35"
+    );
+    const topNumber = normalise(topNumberEl?.textContent);
 
-    const country = attr("data-country") || "Global";
-    const month = attr("data-month");
-    const dateText =
-      attr("data-date-human") ||
-      normalise(
-        element
-          .querySelector("time, .card-event__date")
-          ?.textContent ?? ""
-      );
-    const startDateIso = attr("data-date") || undefined;
+    // Date
+    const timeEl = cardElement.querySelector<HTMLTimeElement>("time");
+    const datetime = timeEl?.getAttribute("datetime");
+    const monthSpan = timeEl?.querySelector<HTMLElement>("span:first-child");
+    const monthAbbr = normalise(monthSpan?.textContent).toLowerCase();
+    // Map abbreviation to full month name, or use as-is if already full
+    const month = monthMap[monthAbbr] || monthAbbr || undefined;
 
-    const location =
-      attr("data-location") ||
-      normalise(
-        [
-          element.getAttribute("data-city"),
-          element.getAttribute("data-state"),
-          element.getAttribute("data-country")
-        ]
-          .filter(Boolean)
-          .join(" • ")
-      ) ||
-      normalise(
-        element
-          .querySelector("em, .card-event__location, p")
-          ?.textContent ?? ""
-      );
+    // Date text
+    const dateTextEl = cardElement.querySelector<HTMLElement>(
+      "p.card-text.text-capitalize"
+    );
+    const dateText = normalise(dateTextEl?.textContent);
 
-    const badgeUrl =
-      resolveAssetUrl(element.getAttribute("data-badge")) ||
-      resolveAssetUrl(element.getAttribute("data-img")) ||
-      resolveAssetUrl(
-        element.querySelector("img")?.getAttribute("data-src")
-      ) ||
-      resolveAssetUrl(
-        element.querySelector("img")?.getAttribute("src")
-      );
+    // Country (from flag image alt)
+    const flagImg = cardElement.querySelector<HTMLImageElement>(
+      ".info img[alt]"
+    );
+    const country = normalise(flagImg?.getAttribute("alt"));
 
-    const link =
-      element.getAttribute("data-link") ||
-      element.querySelector("a")?.getAttribute("href") ||
-      undefined;
+    // Location
+    const locationEls = cardElement.querySelectorAll<HTMLElement>(
+      "p.card-text"
+    );
+    const locationEl = Array.from(locationEls).find(
+      (el) => !el.classList.contains("text-capitalize")
+    );
+    const location = normalise(locationEl?.textContent);
 
-    return {
-      id: attr("data-id") || attr("data-top") || `${index}`,
-      trackName,
-      topNumber,
-      country,
-      month,
-      dateText,
-      startDateIso,
-      location,
-      badgeUrl,
-      link: link ? resolveAssetUrl(link) : undefined
-    };
+    // Link (check if card has a link wrapper)
+    const linkEl = cardElement.closest("a") || cardElement.querySelector("a");
+    const link = linkEl?.getAttribute("href")
+      ? resolveAssetUrl(linkEl.getAttribute("href"))
+      : undefined;
+
+    if (trackName) {
+      cards.push({
+        id: `${trackName}-${topNumber}-${index}`,
+        trackName,
+        topNumber: topNumber || undefined,
+        country: country || undefined,
+        month: month || undefined,
+        dateText: dateText || undefined,
+        startDateIso: datetime || undefined,
+        location: location || undefined,
+        badgeUrl,
+        link
+      });
+    }
   });
+
+  return cards;
 };
 
 export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
   try {
     const response = await httpClient.get<string>(
-      `${ALL_ORIGINS_PROXY}${encodeURIComponent(WP_TOP_PAGE_ENDPOINT)}`,
+      `${ALL_ORIGINS_PROXY}${encodeURIComponent(LOS_LEGENDARIOS_TOP_URL)}`,
       {
         headers: {
-          Accept: "application/json"
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         },
         responseType: "text",
         transformResponse: (data) => data
@@ -128,24 +137,8 @@ export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
       return [];
     }
 
-    let parsedJson: unknown;
-    try {
-      parsedJson = JSON.parse(response.data);
-    } catch {
-      return [];
-    }
-
-    const content =
-      (Array.isArray(parsedJson)
-        ? parsedJson?.[0]?.content?.rendered
-        : undefined) ?? "";
-
-    if (!content) {
-      return [];
-    }
-
-    return parseGlobalTopsFromHtml(content).filter(
-      (item) => item.trackName && item.country
+    return parseGlobalTopsFromHtml(response.data).filter(
+      (item) => item.trackName
     );
   } catch {
     return [];
