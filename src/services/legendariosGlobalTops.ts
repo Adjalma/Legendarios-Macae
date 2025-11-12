@@ -47,7 +47,20 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
   const doc = parser.parseFromString(html, "text/html");
   const cards: GlobalTopEvent[] = [];
 
-  doc.querySelectorAll(".top-wrapper .card").forEach((cardElement, index) => {
+  // Try multiple selectors to find all cards
+  let cardElements = doc.querySelectorAll(".top-wrapper .card");
+  
+  // Fallback: try without .top-wrapper
+  if (cardElements.length === 0) {
+    cardElements = doc.querySelectorAll(".card");
+  }
+  
+  // Fallback: try by class structure
+  if (cardElements.length === 0) {
+    cardElements = doc.querySelectorAll("div.card, article.card");
+  }
+
+  cardElements.forEach((cardElement, index) => {
     // Badge (brasão)
     const badgeImg = cardElement.querySelector<HTMLImageElement>(
       "img.card-img-top"
@@ -143,24 +156,61 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
       cardElement.querySelector<HTMLImageElement>(".info img[alt]")?.getAttribute("alt")
     );
     
-    // Fallback: try any img with alt in .info
+    // Fallback 1: try any img with alt in .info
     if (!country) {
       const infoImgs = cardElement.querySelectorAll<HTMLImageElement>(".info img");
       for (const img of Array.from(infoImgs)) {
         const alt = normalise(img.getAttribute("alt"));
-        if (alt && alt.length > 2) {
+        if (alt && alt.length > 2 && !alt.match(/^(flag|bandeira|img|image)$/i)) {
           country = alt;
           break;
         }
       }
     }
     
-    // Fallback: extract from location if it contains country name
+    // Fallback 2: try any img in the card with alt
+    if (!country) {
+      const allImgs = cardElement.querySelectorAll<HTMLImageElement>("img[alt]");
+      for (const img of Array.from(allImgs)) {
+        const alt = normalise(img.getAttribute("alt"));
+        // Skip badge images (usually have track names or are too short)
+        if (alt && alt.length > 3 && !alt.match(/^(track|top|flag|bandeira|img|image)$/i)) {
+          // Check if it looks like a country name (not a track name)
+          if (!alt.match(/track|top|metanoia|vale|disrup|supera|revolu|farroupilha|jornada|amazonia|los|300|eagle|nest|peace|river|mendoza|graça|morir|republica/i)) {
+            country = alt;
+            break;
+          }
+        }
+      }
+    }
+    
+    // Fallback 3: extract from location if it contains country name
     if (!country && location) {
       const locationParts = location.split(",").map((p) => p.trim());
       const possibleCountry = locationParts[locationParts.length - 1];
       if (possibleCountry && possibleCountry.length > 2) {
         country = possibleCountry;
+      }
+    }
+    
+    // Fallback 4: try to find country text in the card body
+    if (!country) {
+      const cardBody = cardElement.querySelector(".card-body");
+      if (cardBody) {
+        const allText = normalise(cardBody.textContent || "");
+        // List of known countries to match
+        const knownCountries = [
+          "Brasil", "Argentina", "Bolívia", "Chile", "Colômbia", "Costa Rica",
+          "Curaçao", "Ecuador", "El Salvador", "Estados Unidos", "Guatemala",
+          "Inglaterra", "Itália", "Japão", "México", "Panamá", "Paraguai",
+          "Peru", "Portugal", "República Dominicana", "Venezuela"
+        ];
+        for (const knownCountry of knownCountries) {
+          if (allText.includes(knownCountry)) {
+            country = knownCountry;
+            break;
+          }
+        }
       }
     }
     
@@ -248,9 +298,11 @@ const fetchPage = async (pageNumber: number, retries = 2): Promise<GlobalTopEven
         return [];
       }
 
-      return parseGlobalTopsFromHtml(response.data).filter(
+      const parsed = parseGlobalTopsFromHtml(response.data).filter(
         (item) => item.trackName
       );
+      console.log(`📄 Página ${pageNumber}: ${parsed.length} TOPs encontrados`);
+      return parsed;
     } catch (error) {
       if (attempt === retries) {
         console.warn(`Erro ao buscar página ${pageNumber} após ${retries + 1} tentativas:`, error);
@@ -264,10 +316,27 @@ const fetchPage = async (pageNumber: number, retries = 2): Promise<GlobalTopEven
   return [];
 };
 
+// TOPs manuais que não aparecem no site oficial mas devem ser incluídos
+const manualTops: GlobalTopEvent[] = [
+  {
+    id: "track-redencao-top-1282-rio-2025-11-27",
+    trackName: "Track Redenção",
+    topNumber: "TOP 1282",
+    country: "Brasil",
+    city: "Rio de Janeiro",
+    month: "novembro",
+    dateText: "27 a 30 de novembro, 2025",
+    startDateIso: "2025-11-27T00:00:00",
+    location: "Rio de Janeiro, RJ, Brasil",
+    badgeUrl: undefined, // Badge não disponível no site oficial
+    link: "https://legendariosrio.com.br/top-1282"
+  }
+];
+
 export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
   try {
     // Buscar páginas em batches de 3 para não sobrecarregar o proxy
-    const allTops: GlobalTopEvent[] = [];
+    const allTops: GlobalTopEvent[] = [...manualTops]; // Incluir TOPs manuais
     const batchSize = 3;
     const totalPages = 9;
     
