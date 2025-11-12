@@ -56,15 +56,64 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
       ? resolveAssetUrl(badgeImg.src)
       : undefined;
 
-    // Track name
-    const trackNameEl = cardElement.querySelector<HTMLElement>("h5.card-title");
-    const trackName = normalise(trackNameEl?.textContent);
-
-    // TOP number
-    const topNumberEl = cardElement.querySelector<HTMLElement>(
-      "h4.card-title.fs-35"
+    // Track name - try multiple selectors
+    let trackName = normalise(
+      cardElement.querySelector<HTMLElement>("h5.card-title")?.textContent
     );
-    const topNumber = normalise(topNumberEl?.textContent);
+    
+    // Fallback: try h5 without class
+    if (!trackName) {
+      const h5Elements = cardElement.querySelectorAll<HTMLElement>("h5");
+      for (const h5 of Array.from(h5Elements)) {
+        const text = normalise(h5.textContent);
+        if (text && !text.match(/TOP\s*\d+/i)) {
+          trackName = text;
+          break;
+        }
+      }
+    }
+    
+    // Fallback: try h4 or h6
+    if (!trackName) {
+      const altElements = cardElement.querySelectorAll<HTMLElement>("h4, h6");
+      for (const el of Array.from(altElements)) {
+        const text = normalise(el.textContent);
+        if (text && !text.match(/TOP\s*\d+/i) && text.length > 3) {
+          trackName = text;
+          break;
+        }
+      }
+    }
+
+    // TOP number - try multiple selectors
+    let topNumber = normalise(
+      cardElement.querySelector<HTMLElement>("h4.card-title.fs-35")?.textContent
+    );
+    
+    // Fallback: try h4 without class
+    if (!topNumber) {
+      const h4Elements = cardElement.querySelectorAll<HTMLElement>("h4");
+      for (const h4 of Array.from(h4Elements)) {
+        const text = normalise(h4.textContent);
+        if (text.match(/TOP\s*\d+/i)) {
+          topNumber = text;
+          break;
+        }
+      }
+    }
+    
+    // Fallback: try any element with "TOP" text
+    if (!topNumber) {
+      const allElements = cardElement.querySelectorAll<HTMLElement>("*");
+      for (const el of Array.from(allElements)) {
+        const text = normalise(el.textContent);
+        const match = text.match(/TOP\s*(\d+)/i);
+        if (match) {
+          topNumber = `TOP ${match[1]}`;
+          break;
+        }
+      }
+    }
 
     // Date
     const timeEl = cardElement.querySelector<HTMLTimeElement>("time");
@@ -102,15 +151,37 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
       city = parts[0] || undefined;
     }
 
-    // Link (check if card has a link wrapper)
-    const linkEl = cardElement.closest("a") || cardElement.querySelector("a");
-    const link = linkEl?.getAttribute("href")
-      ? resolveAssetUrl(linkEl.getAttribute("href"))
-      : undefined;
+    // Link - check multiple possible locations
+    let link: string | undefined;
+    
+    // Check if card wrapper has a link
+    const cardWrapper = cardElement.closest(".top-wrapper");
+    const wrapperLink = cardWrapper?.querySelector<HTMLAnchorElement>("a");
+    if (wrapperLink?.href) {
+      link = resolveAssetUrl(wrapperLink.href);
+    }
+    
+    // Check if card itself has a link
+    if (!link) {
+      const cardLink = cardElement.querySelector<HTMLAnchorElement>("a");
+      if (cardLink?.href) {
+        link = resolveAssetUrl(cardLink.href);
+      }
+    }
+    
+    // Check parent for link
+    if (!link) {
+      const parentLink = cardElement.closest("a");
+      if (parentLink?.getAttribute("href")) {
+        link = resolveAssetUrl(parentLink.getAttribute("href"));
+      }
+    }
 
     if (trackName) {
+      // Create unique ID from track name, top number, date and location
+      const uniqueId = `${trackName}-${topNumber || ""}-${datetime || ""}-${city || ""}-${index}`;
       cards.push({
-        id: `${trackName}-${topNumber}-${index}`,
+        id: uniqueId,
         trackName,
         topNumber: topNumber || undefined,
         country: country || undefined,
@@ -128,10 +199,14 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
   return cards;
 };
 
-export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
+const fetchPage = async (pageNumber: number): Promise<GlobalTopEvent[]> => {
   try {
+    const url = pageNumber === 1 
+      ? LOS_LEGENDARIOS_TOP_URL 
+      : `${LOS_LEGENDARIOS_TOP_URL}?page=${pageNumber}#list`;
+    
     const response = await httpClient.get<string>(
-      `${ALL_ORIGINS_PROXY}${encodeURIComponent(LOS_LEGENDARIOS_TOP_URL)}`,
+      `${ALL_ORIGINS_PROXY}${encodeURIComponent(url)}`,
       {
         headers: {
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
@@ -148,7 +223,43 @@ export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
     return parseGlobalTopsFromHtml(response.data).filter(
       (item) => item.trackName
     );
-  } catch {
+  } catch (error) {
+    console.warn(`Erro ao buscar página ${pageNumber}:`, error);
+    return [];
+  }
+};
+
+export const fetchGlobalTops = async (): Promise<GlobalTopEvent[]> => {
+  try {
+    // Buscar todas as 9 páginas em paralelo
+    const pagePromises = Array.from({ length: 9 }, (_, i) => fetchPage(i + 1));
+    const pageResults = await Promise.allSettled(pagePromises);
+    
+    // Combinar todos os resultados (incluindo páginas que falharam)
+    const allTops: GlobalTopEvent[] = [];
+    pageResults.forEach((result, index) => {
+      if (result.status === "fulfilled") {
+        allTops.push(...result.value);
+      } else {
+        console.warn(`Página ${index + 1} falhou:`, result.reason);
+      }
+    });
+    
+    // Remover duplicatas baseado em trackName + topNumber + data + cidade
+    const uniqueTops = new Map<string, GlobalTopEvent>();
+    allTops.forEach((top) => {
+      const key = `${top.trackName}-${top.topNumber || ""}-${top.startDateIso || ""}-${top.city || ""}`;
+      if (!uniqueTops.has(key)) {
+        uniqueTops.set(key, top);
+      }
+    });
+    
+    const finalTops = Array.from(uniqueTops.values());
+    console.log(`TOPs globais carregados: ${finalTops.length} únicos de ${allTops.length} totais`);
+    
+    return finalTops;
+  } catch (error) {
+    console.error("Erro ao buscar TOPs globais:", error);
     return [];
   }
 };
