@@ -65,8 +65,14 @@ const extractBadge = (badge?: string) => {
     return `https:${badge}`;
   }
 
+  // URLs que começam com / são assets locais, retornar como estão
   if (badge.startsWith("/")) {
-    return `https://loslegendarios.org${badge}`;
+    return badge;
+  }
+
+  // URLs completas (http/https) retornar como estão
+  if (badge.startsWith("http")) {
+    return badge;
   }
 
   return badge;
