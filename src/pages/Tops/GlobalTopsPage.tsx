@@ -296,16 +296,27 @@ export const GlobalTopsPage = () => {
                 transition={{ duration: 0.4 }}
                 className="group flex h-full flex-col overflow-hidden rounded-3xl border border-legendarios-orange/20 bg-gradient-to-br from-black/60 via-black/40 to-legendarios-orange/5 shadow-2xl shadow-black/60 transition hover:border-legendarios-orange/40 hover:shadow-legendarios-orange/20"
               >
-                {top.badgeUrl && (
-                  <div className="relative flex items-center justify-center bg-gradient-to-br from-legendarios-orange/20 via-black/80 to-black/90 p-8">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,99,15,0.15),_transparent_70%)]" />
+                <div className="relative flex items-center justify-center bg-gradient-to-br from-legendarios-orange/20 via-black/80 to-black/90 p-8">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,99,15,0.15),_transparent_70%)]" />
+                  {top.badgeUrl ? (
                     <img
                       src={extractBadge(top.badgeUrl)}
                       alt={top.trackName}
                       className="relative z-10 h-40 w-40 object-contain drop-shadow-2xl transition-transform group-hover:scale-110"
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div className="relative z-10 flex h-40 w-40 items-center justify-center rounded-2xl border-2 border-legendarios-orange/30 bg-black/40">
+                      <div className="text-center">
+                        <div className="font-display text-2xl font-bold uppercase text-legendarios-orange">
+                          {top.topNumber?.replace("TOP ", "") || ""}
+                        </div>
+                        <div className="mt-1 text-xs uppercase tracking-wide text-white/60">
+                          {top.trackName}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <div className="flex flex-1 flex-col gap-3 p-6">
                   <span className="text-xs uppercase tracking-[0.3em] text-legendarios-orange">
                     {top.country} {top.month ? `• ${top.month}` : ""}
@@ -332,7 +343,7 @@ export const GlobalTopsPage = () => {
                         href={top.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-legendarios-orange px-4 py-3 text-xs font-semibold uppercase tracking-wide text-black transition hover:bg-legendarios-cream hover:shadow-lg hover:shadow-legendarios-orange/30"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-legendarios-orange/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-legendarios-orange transition hover:border-legendarios-orange hover:bg-legendarios-orange/10"
                       >
                         Detalhes oficiais
                         <span aria-hidden>↗</span>
