@@ -6,12 +6,14 @@ import type { GlobalTopEvent } from "../../types/legendarios";
 
 type Filters = {
   country: string;
+  city: string;
   month: string;
   search: string;
 };
 
 const defaultFilters: Filters = {
   country: "todos",
+  city: "todos",
   month: "todos",
   search: ""
 };
@@ -29,6 +31,13 @@ const applyFilters = (tops: GlobalTopEvent[], filters: Filters) =>
     }
 
     if (
+      filters.city !== "todos" &&
+      normalise(top.city) !== normalise(filters.city)
+    ) {
+      return false;
+    }
+
+    if (
       filters.month !== "todos" &&
       normalise(top.month) !== normalise(filters.month)
     ) {
@@ -37,7 +46,7 @@ const applyFilters = (tops: GlobalTopEvent[], filters: Filters) =>
 
     if (filters.search) {
       const haystack = normalise(
-        `${top.trackName} ${top.location} ${top.topNumber}`
+        `${top.trackName} ${top.location} ${top.topNumber} ${top.city}`
       );
       if (!haystack.includes(normalise(filters.search))) {
         return false;
@@ -77,6 +86,21 @@ export const GlobalTopsPage = () => {
     return Array.from(values).sort((a, b) => a.localeCompare(b));
   }, [data]);
 
+  const cities = useMemo(() => {
+    const values = new Set<string>();
+    data?.forEach((item) => {
+      // Only include cities from the selected country, or all if "todos"
+      if (
+        item.city &&
+        (filters.country === "todos" ||
+          normalise(item.country) === normalise(filters.country))
+      ) {
+        values.add(item.city);
+      }
+    });
+    return Array.from(values).sort((a, b) => a.localeCompare(b));
+  }, [data, filters.country]);
+
   const months = useMemo(() => {
     const values = new Set<string>();
     data?.forEach((item) => {
@@ -84,7 +108,24 @@ export const GlobalTopsPage = () => {
         values.add(item.month);
       }
     });
-    return Array.from(values).sort((a, b) => a.localeCompare(b));
+    // Sort months chronologically
+    const monthOrder = [
+      "janeiro",
+      "fevereiro",
+      "março",
+      "abril",
+      "maio",
+      "junho",
+      "julho",
+      "agosto",
+      "setembro",
+      "outubro",
+      "novembro",
+      "dezembro"
+    ];
+    return Array.from(values).sort(
+      (a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b)
+    );
   }, [data]);
 
   const filteredTops = useMemo(() => {
@@ -95,7 +136,7 @@ export const GlobalTopsPage = () => {
   }, [data, filters]);
 
   return (
-    <div className="bg-legendarios-charcoal text-white">
+    <div className="bg-gradient-to-b from-legendarios-charcoal via-legendarios-charcoal to-black text-white">
       <section className="mx-auto max-w-6xl px-4 py-20 md:px-6">
         <header className="space-y-6">
           <span className="text-xs uppercase tracking-[0.4em] text-legendarios-orange">
@@ -111,9 +152,9 @@ export const GlobalTopsPage = () => {
           </p>
         </header>
 
-        <div className="mt-12 grid gap-6 rounded-3xl border border-white/10 bg-black/40 p-6 backdrop-blur md:grid-cols-4">
+        <div className="mt-12 grid gap-6 rounded-3xl border border-legendarios-orange/20 bg-gradient-to-br from-legendarios-orange/10 via-legendarios-orange/5 to-transparent p-6 backdrop-blur md:grid-cols-4">
           <div className="flex flex-col">
-            <label className="text-xs uppercase tracking-[0.3em] text-white/50">
+            <label className="text-xs uppercase tracking-[0.3em] text-legendarios-orange/80">
               País
             </label>
             <select
@@ -121,10 +162,11 @@ export const GlobalTopsPage = () => {
               onChange={(event) =>
                 setFilters((prev) => ({
                   ...prev,
-                  country: event.target.value
+                  country: event.target.value,
+                  city: "todos" // Reset city when country changes
                 }))
               }
-              className="mt-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition focus:border-legendarios-orange"
+              className="mt-2 rounded-2xl border border-legendarios-orange/30 bg-black/40 px-4 py-3 text-sm text-white outline-none transition focus:border-legendarios-orange focus:bg-black/60"
             >
               <option value="todos">Todos</option>
               {countries.map((country) => (
@@ -136,7 +178,30 @@ export const GlobalTopsPage = () => {
           </div>
 
           <div className="flex flex-col">
-            <label className="text-xs uppercase tracking-[0.3em] text-white/50">
+            <label className="text-xs uppercase tracking-[0.3em] text-legendarios-orange/80">
+              Cidade
+            </label>
+            <select
+              value={filters.city}
+              onChange={(event) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  city: event.target.value
+                }))
+              }
+              className="mt-2 rounded-2xl border border-legendarios-orange/30 bg-black/40 px-4 py-3 text-sm text-white outline-none transition focus:border-legendarios-orange focus:bg-black/60"
+            >
+              <option value="todos">Todas</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-xs uppercase tracking-[0.3em] text-legendarios-orange/80">
               Mês
             </label>
             <select
@@ -147,7 +212,7 @@ export const GlobalTopsPage = () => {
                   month: event.target.value
                 }))
               }
-              className="mt-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition focus:border-legendarios-orange"
+              className="mt-2 rounded-2xl border border-legendarios-orange/30 bg-black/40 px-4 py-3 text-sm text-white outline-none transition focus:border-legendarios-orange focus:bg-black/60"
             >
               <option value="todos">Todos</option>
               {months.map((month) => (
@@ -158,8 +223,8 @@ export const GlobalTopsPage = () => {
             </select>
           </div>
 
-          <div className="flex flex-col md:col-span-2">
-            <label className="text-xs uppercase tracking-[0.3em] text-white/50">
+          <div className="flex flex-col">
+            <label className="text-xs uppercase tracking-[0.3em] text-legendarios-orange/80">
               Buscar
             </label>
             <input
@@ -171,7 +236,7 @@ export const GlobalTopsPage = () => {
                 }))
               }
               placeholder="Track, número TOP ou cidade"
-              className="mt-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition focus:border-legendarios-orange"
+              className="mt-2 rounded-2xl border border-legendarios-orange/30 bg-black/40 px-4 py-3 text-sm text-white outline-none transition focus:border-legendarios-orange focus:bg-black/60 placeholder:text-white/40"
             />
           </div>
         </div>
@@ -204,34 +269,35 @@ export const GlobalTopsPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.4 }}
-                className="flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/40"
+                className="group flex h-full flex-col overflow-hidden rounded-3xl border border-legendarios-orange/20 bg-gradient-to-br from-black/60 via-black/40 to-legendarios-orange/5 shadow-2xl shadow-black/60 transition hover:border-legendarios-orange/40 hover:shadow-legendarios-orange/20"
               >
                 {top.badgeUrl && (
-                  <div className="flex items-center justify-center bg-black/60 p-6">
+                  <div className="relative flex items-center justify-center bg-gradient-to-br from-legendarios-orange/20 via-black/80 to-black/90 p-8">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,99,15,0.15),_transparent_70%)]" />
                     <img
                       src={extractBadge(top.badgeUrl)}
                       alt={top.trackName}
-                      className="h-32 w-32 object-contain"
+                      className="relative z-10 h-40 w-40 object-contain drop-shadow-2xl transition-transform group-hover:scale-110"
                     />
                   </div>
                 )}
                 <div className="flex flex-1 flex-col gap-3 p-6">
-                  <span className="text-xs uppercase tracking-[0.3em] text-legendarios-orange/80">
+                  <span className="text-xs uppercase tracking-[0.3em] text-legendarios-orange">
                     {top.country} {top.month ? `• ${top.month}` : ""}
                   </span>
-                  <h3 className="font-display text-2xl uppercase">
+                  <h3 className="font-display text-2xl uppercase text-white">
                     {top.trackName}
                   </h3>
                   {top.topNumber && (
-                    <p className="text-sm font-semibold uppercase text-white/70">
+                    <p className="text-base font-bold uppercase text-legendarios-orange">
                       {top.topNumber}
                     </p>
                   )}
                   {top.dateText && (
-                    <p className="text-sm text-white/70">{top.dateText}</p>
+                    <p className="text-sm text-white/80">{top.dateText}</p>
                   )}
                   {top.location && (
-                    <p className="text-xs uppercase tracking-wide text-white/50">
+                    <p className="text-xs uppercase tracking-wide text-white/60">
                       {top.location}
                     </p>
                   )}
@@ -241,15 +307,21 @@ export const GlobalTopsPage = () => {
                         href={top.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full border border-legendarios-orange px-4 py-2 text-xs font-semibold uppercase tracking-wide text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-legendarios-orange px-4 py-3 text-xs font-semibold uppercase tracking-wide text-black transition hover:bg-legendarios-cream hover:shadow-lg hover:shadow-legendarios-orange/30"
                       >
                         Detalhes oficiais
                         <span aria-hidden>↗</span>
                       </a>
                     ) : (
-                      <span className="text-xs text-white/40">
-                        Consulte loslegendarios.org para detalhes completos.
-                      </span>
+                      <a
+                        href="https://loslegendarios.org/top"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-legendarios-orange/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-legendarios-orange transition hover:border-legendarios-orange hover:bg-legendarios-orange/10"
+                      >
+                        Ver no site oficial
+                        <span aria-hidden>↗</span>
+                      </a>
                     )}
                   </div>
                 </div>

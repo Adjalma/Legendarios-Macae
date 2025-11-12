@@ -94,6 +94,13 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
       (el) => !el.classList.contains("text-capitalize")
     );
     const location = normalise(locationEl?.textContent);
+    
+    // Extract city from location (format: "City, State, Country")
+    let city: string | undefined;
+    if (location) {
+      const parts = location.split(",").map((p) => p.trim());
+      city = parts[0] || undefined;
+    }
 
     // Link (check if card has a link wrapper)
     const linkEl = cardElement.closest("a") || cardElement.querySelector("a");
@@ -107,6 +114,7 @@ const parseGlobalTopsFromHtml = (html: string): GlobalTopEvent[] => {
         trackName,
         topNumber: topNumber || undefined,
         country: country || undefined,
+        city: city || undefined,
         month: month || undefined,
         dateText: dateText || undefined,
         startDateIso: datetime || undefined,

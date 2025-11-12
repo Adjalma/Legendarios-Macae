@@ -32,6 +32,7 @@ export type GlobalTopEvent = {
   topNumber?: string;
   month?: string;
   country?: string;
+  city?: string;
   dateText?: string;
   startDateIso?: string;
   location?: string;
