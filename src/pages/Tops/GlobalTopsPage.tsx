@@ -302,7 +302,7 @@ export const GlobalTopsPage = () => {
                     <img
                       src={extractBadge(top.badgeUrl)}
                       alt={top.trackName}
-                      className="relative z-10 h-40 w-40 object-contain drop-shadow-2xl transition-transform group-hover:scale-110"
+                      className="relative z-10 h-40 w-40 object-cover rounded-2xl drop-shadow-2xl transition-transform group-hover:scale-110"
                     />
                   ) : (
                     <div className="relative z-10 flex h-40 w-40 items-center justify-center rounded-2xl border-2 border-legendarios-orange/30 bg-black/40">

@@ -328,7 +328,7 @@ const manualTops: GlobalTopEvent[] = [
     dateText: "27 a 30 de novembro, 2025",
     startDateIso: "2025-11-27T00:00:00",
     location: "Rio de Janeiro, RJ, Brasil",
-    badgeUrl: undefined, // Badge não disponível no site oficial
+    badgeUrl: "https://legendariosrio.com.br/wp-content/uploads/2024/08/legendarios-top-rio.jpg", // Imagem promocional do TOP 1282 - Track Redenção
     link: "https://legendariosrio.com.br/top-1282"
   }
 ];
