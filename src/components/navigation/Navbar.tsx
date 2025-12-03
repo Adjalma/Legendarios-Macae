@@ -21,28 +21,28 @@ export const Navbar = () => {
 
   return (
     <header className="bg-legendarios-dark/90 backdrop-blur supports-[backdrop-filter]:bg-legendarios-dark/70 sticky top-0 z-50 border-b border-white/5">
-      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4 md:px-6">
-        <NavLink to="/" className="flex items-center gap-4">
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
+        <NavLink to="/" className="flex items-center gap-4 flex-shrink-0">
           <img
             src="/assets/logo-legendarios-macae-flag.svg"
             alt="Legendários Macaé"
-            className="h-14 w-14 rounded-full border border-white/10 bg-black/60 p-1"
+            className="h-14 w-14 rounded-full border border-white/10 bg-black/60 p-1 flex-shrink-0"
           />
-          <div className="flex flex-col leading-tight">
-            <span className="font-display text-lg tracking-[0.4em] uppercase text-legendarios-orange">
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="font-display text-lg tracking-[0.4em] uppercase text-legendarios-orange whitespace-nowrap">
               Legendários
             </span>
-            <span className="text-sm text-white/80 uppercase tracking-[0.3em]">Macaé</span>
+            <span className="text-sm text-white/80 uppercase tracking-[0.3em] whitespace-nowrap">Macaé</span>
           </div>
         </NavLink>
 
-        <nav className="hidden items-center gap-6 text-sm font-semibold uppercase tracking-wide text-white/80 md:flex">
+        <nav className="hidden items-center gap-4 text-sm font-semibold uppercase tracking-wide text-white/80 md:flex flex-1 justify-end min-w-0">
           {links.map((link) => (
             <NavLink
               key={link.path}
               to={link.path}
               className={({ isActive }) =>
-                `px-2 transition hover:text-white ${
+                `px-2 py-1 whitespace-nowrap transition hover:text-white ${
                   isActive ? "text-legendarios-orange" : ""
                 }`
               }
@@ -50,10 +50,10 @@ export const Navbar = () => {
               {link.label}
             </NavLink>
           ))}
-          <div className="ml-4 flex items-center gap-4">
+          <div className="ml-6 flex items-center gap-3 flex-shrink-0">
             <NavLink
               to={ctaLink.path}
-              className="whitespace-nowrap rounded-full bg-legendarios-orange px-5 py-2.5 text-sm text-legendarios-dark font-semibold transition hover:bg-white"
+              className="whitespace-nowrap rounded-full bg-legendarios-orange px-4 py-2 text-xs text-legendarios-dark font-semibold transition hover:bg-white"
             >
               {ctaLink.label}
             </NavLink>
@@ -61,7 +61,7 @@ export const Navbar = () => {
               href="https://loslegendarios.org/"
               target="_blank"
               rel="noreferrer"
-              className="whitespace-nowrap rounded-full border border-legendarios-orange px-4 py-2.5 text-sm text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
+              className="whitespace-nowrap rounded-full border border-legendarios-orange px-3 py-2 text-xs text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
             >
               Legendários Global
             </a>
