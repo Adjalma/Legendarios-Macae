@@ -12,6 +12,8 @@ const links: NavigationLink[] = [
   { label: "Contato", path: "/contato" }
 ];
 
+const ctaLink = { label: "Quero ser TOP", path: "/cadastro" };
+
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -48,6 +50,12 @@ export const Navbar = () => {
               {link.label}
             </NavLink>
           ))}
+          <NavLink
+            to={ctaLink.path}
+            className="rounded-full bg-legendarios-orange px-4 py-2 text-legendarios-dark font-semibold transition hover:bg-white"
+          >
+            {ctaLink.label}
+          </NavLink>
           <a
             href="https://loslegendarios.org/"
             target="_blank"

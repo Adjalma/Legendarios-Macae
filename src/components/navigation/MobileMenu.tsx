@@ -7,6 +7,8 @@ type MobileMenuProps = {
   onClose: () => void;
 };
 
+const ctaLink = { label: "Quero ser TOP", path: "/cadastro" };
+
 export const MobileMenu = ({ links, isOpen, onClose }: MobileMenuProps) => {
   if (!isOpen) {
     return null;
@@ -29,6 +31,13 @@ export const MobileMenu = ({ links, isOpen, onClose }: MobileMenuProps) => {
             {link.label}
           </NavLink>
         ))}
+        <NavLink
+          to={ctaLink.path}
+          onClick={onClose}
+          className="mt-3 rounded-md bg-legendarios-orange px-3 py-2 text-center font-semibold text-legendarios-dark transition hover:bg-white"
+        >
+          {ctaLink.label}
+        </NavLink>
         <a
           href="https://loslegendarios.org/"
           target="_blank"

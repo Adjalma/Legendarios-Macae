@@ -6,6 +6,7 @@ import { StoriesPage } from "../pages/Stories/StoriesPage";
 import { MediaPage } from "../pages/Media/MediaPage";
 import { AboutPage } from "../pages/About/AboutPage";
 import { ContactPage } from "../pages/Contact/ContactPage";
+import { RegisterPage } from "../pages/Register/RegisterPage";
 import { PrivacyPage } from "../pages/Legal/PrivacyPage";
 import { TermsPage } from "../pages/Legal/TermsPage";
 
@@ -18,6 +19,8 @@ export const AppRoutes = () => {
     { path: "/midia", element: <MediaPage /> },
     { path: "/sobre", element: <AboutPage /> },
     { path: "/contato", element: <ContactPage /> },
+    { path: "/cadastro", element: <RegisterPage /> },
+    { path: "/inscricao", element: <RegisterPage /> },
     { path: "/politica-de-privacidade", element: <PrivacyPage /> },
     { path: "/termos-de-uso", element: <TermsPage /> }
   ]);
