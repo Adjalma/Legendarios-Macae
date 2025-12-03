@@ -12,7 +12,7 @@ const links: NavigationLink[] = [
   { label: "Contato", path: "/contato" }
 ];
 
-const ctaLink = { label: "Quero ser TOP", path: "/cadastro" };
+const ctaLink = { label: "PRÉ CADASTRO LGND", path: "/cadastro" };
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,13 +36,13 @@ export const Navbar = () => {
           </div>
         </NavLink>
 
-        <nav className="hidden items-center gap-8 text-sm font-semibold uppercase tracking-wide text-white/80 md:flex">
+        <nav className="hidden items-center gap-6 text-sm font-semibold uppercase tracking-wide text-white/80 md:flex">
           {links.map((link) => (
             <NavLink
               key={link.path}
               to={link.path}
               className={({ isActive }) =>
-                `transition hover:text-white ${
+                `px-2 transition hover:text-white ${
                   isActive ? "text-legendarios-orange" : ""
                 }`
               }
@@ -50,20 +50,22 @@ export const Navbar = () => {
               {link.label}
             </NavLink>
           ))}
-          <NavLink
-            to={ctaLink.path}
-            className="rounded-full bg-legendarios-orange px-4 py-2 text-legendarios-dark font-semibold transition hover:bg-white"
-          >
-            {ctaLink.label}
-          </NavLink>
-          <a
-            href="https://loslegendarios.org/"
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full border border-legendarios-orange px-4 py-2 text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
-          >
-            Legendários Global
-          </a>
+          <div className="ml-4 flex items-center gap-4">
+            <NavLink
+              to={ctaLink.path}
+              className="whitespace-nowrap rounded-full bg-legendarios-orange px-5 py-2.5 text-sm text-legendarios-dark font-semibold transition hover:bg-white"
+            >
+              {ctaLink.label}
+            </NavLink>
+            <a
+              href="https://loslegendarios.org/"
+              target="_blank"
+              rel="noreferrer"
+              className="whitespace-nowrap rounded-full border border-legendarios-orange px-4 py-2.5 text-sm text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
+            >
+              Legendários Global
+            </a>
+          </div>
         </nav>
 
         <button
