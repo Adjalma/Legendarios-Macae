@@ -21,28 +21,28 @@ export const Navbar = () => {
 
   return (
     <header className="bg-legendarios-dark/90 backdrop-blur supports-[backdrop-filter]:bg-legendarios-dark/70 sticky top-0 z-50 border-b border-white/5">
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-6 px-4 md:px-8 lg:px-12">
-        <NavLink to="/" className="flex items-center gap-3 flex-shrink-0">
+      <div className="mx-auto flex h-20 w-full max-w-[95vw] lg:max-w-7xl xl:max-w-[1400px] items-center justify-between gap-4 md:gap-6 px-4 md:px-6 lg:px-8 xl:px-12">
+        <NavLink to="/" className="flex items-center gap-2 md:gap-3 flex-shrink-0 min-w-0">
           <img
             src="/assets/logo-legendarios-macae-flag.svg"
             alt="Legendários Macaé"
-            className="h-14 w-14 rounded-full border border-white/10 bg-black/60 p-1 flex-shrink-0"
+            className="h-12 w-12 md:h-14 md:w-14 rounded-full border border-white/10 bg-black/60 p-1 flex-shrink-0"
           />
-          <div className="flex flex-col leading-tight">
-            <span className="font-display text-base md:text-lg tracking-[0.3em] uppercase text-legendarios-orange whitespace-nowrap">
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="font-display text-sm md:text-base lg:text-lg tracking-[0.2em] md:tracking-[0.25em] uppercase text-legendarios-orange whitespace-nowrap">
               Legendários
             </span>
-            <span className="text-xs md:text-sm text-white/80 uppercase tracking-[0.2em] whitespace-nowrap">Macaé</span>
+            <span className="text-[10px] md:text-xs lg:text-sm text-white/80 uppercase tracking-[0.15em] md:tracking-[0.2em] whitespace-nowrap">Macaé</span>
           </div>
         </NavLink>
 
-        <nav className="hidden items-center gap-3 lg:gap-5 text-xs md:text-sm font-semibold uppercase tracking-wide text-white/80 md:flex flex-shrink-0">
+        <nav className="hidden items-center gap-2 md:gap-3 lg:gap-4 text-[10px] md:text-xs lg:text-sm font-semibold uppercase tracking-wide text-white/80 md:flex flex-shrink-0 min-w-0">
           {links.map((link) => (
             <NavLink
               key={link.path}
               to={link.path}
               className={({ isActive }) =>
-                `px-2 py-1 whitespace-nowrap transition hover:text-white ${
+                `px-1 md:px-2 py-1 whitespace-nowrap transition hover:text-white ${
                   isActive ? "text-legendarios-orange" : ""
                 }`
               }
@@ -50,10 +50,10 @@ export const Navbar = () => {
               {link.label}
             </NavLink>
           ))}
-          <div className="ml-4 lg:ml-6 flex items-center gap-2 lg:gap-3 flex-shrink-0">
+          <div className="ml-2 md:ml-4 lg:ml-6 flex items-center gap-2 md:gap-3 flex-shrink-0">
             <NavLink
               to={ctaLink.path}
-              className="whitespace-nowrap rounded-full bg-legendarios-orange px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs text-legendarios-dark font-semibold transition hover:bg-white"
+              className="whitespace-nowrap rounded-full bg-legendarios-orange px-2 py-1 md:px-3 md:py-1.5 lg:px-4 lg:py-2 text-[9px] md:text-[10px] lg:text-xs text-legendarios-dark font-semibold transition hover:bg-white"
             >
               {ctaLink.label}
             </NavLink>
@@ -61,7 +61,7 @@ export const Navbar = () => {
               href="https://loslegendarios.org/"
               target="_blank"
               rel="noreferrer"
-              className="whitespace-nowrap rounded-full border border-legendarios-orange px-2 py-1.5 md:px-3 md:py-2 text-[10px] md:text-xs text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
+              className="whitespace-nowrap rounded-full border border-legendarios-orange px-2 py-1 md:px-2.5 md:py-1.5 lg:px-3 lg:py-2 text-[9px] md:text-[10px] lg:text-xs text-legendarios-orange transition hover:bg-legendarios-orange hover:text-legendarios-dark"
             >
               Legendários Global
             </a>
